@@ -56,7 +56,7 @@ details{margin-top:12px}summary{cursor:pointer;font-size:13px;font-weight:700;co
 </header>
 <div class="tabs">
   <div class="tab active" data-page="make">フォーマット作成</div>
-  <div class="tab" data-page="db">データ管理（チーム/大会）</div>
+  <div class="tab" data-page="db">データ管理（シーズン/チーム/大会）</div>
 </div>
 
 <div class="wrap">
@@ -100,6 +100,12 @@ details{margin-top:12px}summary{cursor:pointer;font-size:13px;font-weight:700;co
 
   <!-- ===== DB ===== -->
   <div class="page" id="page-db">
+    <div class="card">
+      <h2>シーズン登録</h2>
+      <p class="hint">ここで追加したシーズンが「共通設定」のシーズンに反映されます（例：28/29）。</p>
+      <div class="rowbtns"><button class="btn primary" id="add-season">＋ シーズンを追加</button></div>
+      <table id="season-table"><thead><tr><th>シーズン</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
     <div class="card">
       <h2>チーム登録</h2>
       <p class="hint">スタジアム名は「通常（ネーミングライツ名）」と「欧州カップ戦用（代替名）」を登録。欧州用が空なら通常を使用します。</p>
@@ -266,6 +272,18 @@ el('add-team').onclick=()=>{state.teams.push({comp:(state.competitions[0]&&state
 el('add-comp').onclick=()=>{state.competitions.push({name:'新規大会',type:'国内リーグ'}); save(); renderCompTable(); fillCommon();};
 el('reset').onclick=resetData;
 
+function renderSeasonTable(){
+  const tb=el('season-table').querySelector('tbody'); tb.innerHTML='';
+  state.seasons.forEach((s,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input data-si="${i}" value="${esc(s)}"></td><td class="del" data-dels="${i}">✕</td>`;
+    tb.appendChild(tr);
+  });
+}
+el('season-table').addEventListener('input',e=>{const i=e.target.dataset.si; if(i!=null){state.seasons[i]=e.target.value; save(); fillCommon();}});
+el('season-table').addEventListener('click',e=>{if(e.target.dataset.dels!=null){state.seasons.splice(+e.target.dataset.dels,1); save(); renderSeasonTable(); fillCommon();}});
+el('add-season').onclick=()=>{state.seasons.push('28/29'); save(); renderSeasonTable(); fillCommon();};
+
 // ---- generate ----
 function b64ToBuf(b64){const bin=atob(b64);const len=bin.length;const bytes=new Uint8Array(len);for(let i=0;i<len;i++)bytes[i]=bin.charCodeAt(i);return bytes.buffer;}
 function safe(s){return (s||'').replace(/[\\/:*?"<>|]/g,'').slice(0,40);}
@@ -322,7 +340,7 @@ let toastT;
 function toast(m){const t=el('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
 
 function renderAll(){
-  fillCommon(); renderTeamTable(); renderCompTable();
+  fillCommon(); renderSeasonTable(); renderTeamTable(); renderCompTable();
   if(!rows.length){ addRow({home:'ドルトムント',away:'ベンフィカ'}); } else { renderRows(); }
 }
 renderAll();
