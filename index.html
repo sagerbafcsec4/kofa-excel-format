@@ -109,7 +109,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
         <table id="match-table">
           <thead><tr>
             <th class="colnum">#</th><th>開催日<br><span class="ph">{{DATE}}</span></th><th>KO<br><span class="ph">{{KICKOFF}}</span></th><th>ホーム<br><span class="ph">{{HOME_TEAM}}</span></th><th>アウェイ<br><span class="ph">{{AWAY_TEAM}}</span></th>
-            <th>スタジアム②<br><span class="ph">→{{HOME_STADIUM}}</span></th><th>節（上書き）<br><span class="ph">{{MATCHDAY}}</span></th><th>シーズン（上書き）<br><span class="ph">{{SEASON}}</span></th><th>テンプレート</th><th></th>
+            <th>スタジアム②<br><span class="ph">→{{HOME_STADIUM}}</span></th><th>テンプレート</th><th></th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -195,12 +195,6 @@ function fmtDate(v){ if(!v) return ''; const d=new Date(v+'T00:00:00'); if(isNaN
 function fillCommon(){ /* シーズン・大会名・第●節は手打ち入力 */ }
 
 function tplOptions(sel){ let h='<option value="">（先頭）</option>'; templates.forEach((t,i)=>{h+=`<option value="${i}" ${String(sel)===String(i)?'selected':''}>${esc(t.name)}</option>`;}); return h; }
-function teamOptions(selected){
-  const byComp={}; state.teams.forEach(t=>{(byComp[t.comp]=byComp[t.comp]||[]).push(t);});
-  let html='<option value=""></option>';
-  Object.keys(byComp).forEach(comp=>{ html+=`<optgroup label="${esc(comp)}">`; byComp[comp].forEach(t=>{html+=`<option ${t.name===selected?'selected':''}>${esc(t.name)}</option>`;}); html+='</optgroup>'; });
-  return html;
-}
 function renderTemplates(){
   const ul=el('tpl-list'); ul.innerHTML='';
   templates.forEach((t,i)=>{ const li=document.createElement('li'); li.innerHTML=`<span>📄 ${esc(t.name)}</span><span class="del" data-tpl="${i}">削除</span>`; ul.appendChild(li); });
@@ -212,17 +206,15 @@ function renderRows(){
     tr.innerHTML=`<td class="idx">${i+1}</td>
       <td><input type="date" data-i="${i}" data-k="date" value="${esc(r.date)}"></td>
       <td><input type="time" data-i="${i}" data-k="ko" value="${esc(r.ko)}" style="width:92px"></td>
-      <td><select data-i="${i}" data-k="home">${teamOptions(r.home)}</select></td>
-      <td><select data-i="${i}" data-k="away">${teamOptions(r.away)}</select></td>
+      <td><input type="text" data-i="${i}" data-k="home" value="${esc(r.home)}" placeholder="チーム名"></td>
+      <td><input type="text" data-i="${i}" data-k="away" value="${esc(r.away)}" placeholder="チーム名"></td>
       <td style="text-align:center"><input type="checkbox" data-i="${i}" data-k="use2" ${r.use2?'checked':''}></td>
-      <td><input type="text" data-i="${i}" data-k="md" value="${esc(r.md)}" placeholder="（共通）" style="width:96px"></td>
-      <td><input type="text" data-i="${i}" data-k="season" value="${esc(r.season)}" placeholder="（共通）" style="width:80px"></td>
       <td><select data-i="${i}" data-k="tpl">${tplOptions(r.tpl)}</select></td>
       <td class="del" data-del="${i}">✕</td>`;
     tb.appendChild(tr);
   });
 }
-function addRow(data){ rows.push(Object.assign({date:'',ko:'21:00',home:'',away:'',use2:false,tpl:'',md:'',season:''}, data||{})); renderRows(); }
+function addRow(data){ rows.push(Object.assign({date:'',ko:'21:00',home:'',away:'',use2:false,tpl:''}, data||{})); renderRows(); }
 
 el('match-table').addEventListener('input',e=>{
   const i=e.target.dataset.i,k=e.target.dataset.k; if(i==null)return;
@@ -259,8 +251,8 @@ el('reset').onclick=resetData;
 function safe(s){return (s||'').replace(/[\\/:*?"<>|]/g,'').slice(0,40);}
 function valsFor(r){
   const comp=el('c-comp').value;
-  const season=r.season||el('c-season').value;
-  const md=r.md||el('c-md').value;
+  const season=el('c-season').value;
+  const md=el('c-md').value;
   const th=teamObj(r.home)||{}, ta=teamObj(r.away)||{};
   let ymd=''; if(r.date){const d=new Date(r.date+'T00:00:00'); if(!isNaN(d)) ymd=''+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');}
   return {
