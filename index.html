@@ -185,7 +185,10 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
         <span class="ph">{{ホーム国}}</span><span class="ph">{{ホーム都市}}</span><span class="ph">{{ホームスタジアム}}</span>
         <span class="ph">{{アウェイ国}}</span><span class="ph">{{アウェイ都市}}</span><span class="ph">{{アウェイスタジアム}}</span>
       </p>
-      <p>英語別名も可：<span class="ph">{{Home Team}}</span><span class="ph">{{Away Team}}</span></p>
+      <p style="margin-top:10px;font-weight:700;color:#475569;font-size:13px">英語別名（アンダースコア）も使えます：</p>
+      <p><span class="ph">{{HOME_TEAM}}</span><span class="ph">{{AWAY_TEAM}}</span><span class="ph">{{HOME_STADIUM}}</span><span class="ph">{{AWAY_STADIUM}}</span><span class="ph">{{HOME_CITY}}</span><span class="ph">{{AWAY_CITY}}</span><span class="ph">{{HOME_COUNTRY}}</span><span class="ph">{{AWAY_COUNTRY}}</span></p>
+      <p><span class="ph">{{COMPETITION}}</span><span class="ph">{{SEASON}}</span><span class="ph">{{MATCHDAY}}</span><span class="ph">{{DATE}}</span><span class="ph">{{DATE8}}</span><span class="ph">{{KICKOFF}}</span><span class="ph">{{VENUE}}</span></p>
+      <p class="hint">{{HOME_STADIUM}}＝ホームチームのスタジアム、{{AWAY_STADIUM}}＝アウェイチームのスタジアム（どちらもデータ管理の登録から自動取得）。{{Home Team}}/{{Away Team}} も引き続き使えます。</p>
       <p class="hint">例：タイトルのセルに <span class="ph">{{大会}}{{シーズン}}</span> 第 <span class="ph">{{節}}</span> 節、のように複数を1セルに並べてもOKです。</p>
     </div>
   </div>
@@ -328,7 +331,13 @@ function valsFor(r){
     'ホーム':r.home,'アウェイ':r.away,'Home Team':r.home,'Away Team':r.away,
     '大会':comp,'シーズン':season,'節':md,'開催日':fmtDate(r.date),'日付':ymd,'KO':r.ko||'','会場':venue,
     'ホーム国':th.country||'','ホーム都市':th.city||'','ホームスタジアム':stadFor(th),
-    'アウェイ国':ta.country||'','アウェイ都市':ta.city||'','アウェイスタジアム':stadFor(ta)
+    'アウェイ国':ta.country||'','アウェイ都市':ta.city||'','アウェイスタジアム':stadFor(ta),
+    'HOME_TEAM':r.home,'AWAY_TEAM':r.away,
+    'HOME_STADIUM':stadFor(th),'AWAY_STADIUM':stadFor(ta),
+    'HOME_CITY':th.city||'','AWAY_CITY':ta.city||'',
+    'HOME_COUNTRY':th.country||'','AWAY_COUNTRY':ta.country||'',
+    'COMPETITION':comp,'SEASON':season,'MATCHDAY':md,
+    'DATE':fmtDate(r.date),'DATE8':ymd,'KICKOFF':r.ko||'','VENUE':venue
   };
 }
 function repl(s,vals){ return s.replace(/\{\{\s*([^}]+?)\s*\}\}/g,(m,k)=> (k in vals)? vals[k] : m); }
