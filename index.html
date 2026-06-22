@@ -80,7 +80,6 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
 <div class="tabs">
   <div class="tab active" data-page="make">フォーマット作成</div>
   <div class="tab" data-page="db">データ管理（シーズン/チーム/大会）</div>
-  <div class="tab" data-page="help">使い方・プレースホルダ</div>
 </div>
 
 <div class="wrap">
@@ -92,16 +91,15 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
         <input type="file" id="file" accept=".xlsx" multiple style="display:none">
       </label>
       <ul class="tpllist" id="tpl-list"></ul>
-      <div class="rowbtns"><button class="btn" id="dl-sample">サンプル書式（スタメン）をダウンロード</button></div>
-      <p class="hint">テンプレートのセルに <span class="ph">{{HOME_TEAM}}</span><span class="ph">{{AWAY_TEAM}}</span><span class="ph">{{HOME_STADIUM}}</span> などを書いておくと差し替わります（全シート対象・書式そのまま）。一覧は「使い方」タブ。</p>
+      <p class="hint">テンプレートのセルに <span class="ph">{{HOME_TEAM}}</span><span class="ph">{{AWAY_TEAM}}</span><span class="ph">{{HOME_STADIUM}}</span> などを書いておくと差し替わります（全シート対象・書式そのまま）。使えるトークンは下の各欄に表示しています。</p>
     </div>
 
     <div class="card">
       <h2><span class="step">2</span>共通設定</h2>
       <div class="grid">
-        <div class="field"><label>シーズン</label><input type="text" id="c-season" placeholder="25/26 など"></div>
-        <div class="field"><label>大会名</label><input type="text" id="c-comp" placeholder="UEFAチャンピオンズリーグ など"></div>
-        <div class="field"><label>第●節</label><input type="text" id="c-md" placeholder="第●節 / MD● / 準々決勝1stleg"></div>
+        <div class="field"><label>シーズン <span class="ph">{{SEASON}}</span></label><input type="text" id="c-season" placeholder="25/26 など"></div>
+        <div class="field"><label>大会名 <span class="ph">{{COMPETITION}}</span></label><input type="text" id="c-comp" placeholder="UEFAチャンピオンズリーグ など"></div>
+        <div class="field"><label>第●節 <span class="ph">{{MATCHDAY}}</span></label><input type="text" id="c-md" placeholder="第●節 / MD● / 準々決勝1stleg"></div>
       </div>
     </div>
 
@@ -110,8 +108,8 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
       <div class="tbl-scroll">
         <table id="match-table">
           <thead><tr>
-            <th class="colnum">#</th><th>開催日</th><th>KO</th><th>ホーム</th><th>アウェイ</th>
-            <th>スタジアム②</th><th>節（上書き）</th><th>シーズン（上書き）</th><th>テンプレート</th><th></th>
+            <th class="colnum">#</th><th>開催日<br><span class="ph">{{DATE}}</span></th><th>KO<br><span class="ph">{{KICKOFF}}</span></th><th>ホーム<br><span class="ph">{{HOME_TEAM}}</span></th><th>アウェイ<br><span class="ph">{{AWAY_TEAM}}</span></th>
+            <th>スタジアム②<br><span class="ph">→{{HOME_STADIUM}}</span></th><th>節（上書き）<br><span class="ph">{{MATCHDAY}}</span></th><th>シーズン（上書き）<br><span class="ph">{{SEASON}}</span></th><th>テンプレート</th><th></th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -120,6 +118,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
         <button class="btn primary" id="add-row">＋ 行を追加</button>
         <button class="btn" id="clear-rows">クリア</button>
       </div>
+      <p class="hint">そのほか自動で入るトークン：<span class="ph">{{HOME_STADIUM}}</span><span class="ph">{{AWAY_STADIUM}}</span><span class="ph">{{HOME_CITY}}</span><span class="ph">{{AWAY_CITY}}</span><span class="ph">{{HOME_COUNTRY}}</span><span class="ph">{{AWAY_COUNTRY}}</span><span class="ph">{{DATE8}}</span>（チーム・地名はデータ管理の登録から自動取得。{{DATE8}}＝20250916）</p>
       <details>
         <summary>まとめて貼り付けて追加（1行に1試合）</summary>
         <p class="hint">「ホーム ［タブ/カンマ］ アウェイ ［タブ/カンマ］ 開催日(任意) ［タブ/カンマ］ KO(任意)」を1行に1試合で。</p>
@@ -165,30 +164,6 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
       <p class="hint">大会名を登録すると「共通設定」の大会名で選べます。</p>
       <div class="rowbtns"><button class="btn primary" id="add-comp">＋ 大会を追加</button></div>
       <table id="comp-table"><thead><tr><th>大会名</th><th></th></tr></thead><tbody></tbody></table>
-    </div>
-  </div>
-
-  <!-- ===== HELP ===== -->
-  <div class="page" id="page-help">
-    <div class="card">
-      <h2>使い方</h2>
-      <p class="hint">1) Excelテンプレートのセルに下のプレースホルダを書く → 2) このアプリにアップロード → 3) 共通設定と対戦リストを入力 → 4)「まとめてダウンロード」。テンプレートの書式・結合セル・複数シートはそのまま保持されます。</p>
-    </div>
-    <div class="card">
-      <h2>使えるプレースホルダ（英語のみ）</h2>
-      <table style="margin-top:6px">
-        <tbody>
-        <tr><td><span class="ph">{{HOME_TEAM}}</span></td><td>ホームチーム名</td><td><span class="ph">{{AWAY_TEAM}}</span></td><td>アウェイチーム名</td></tr>
-        <tr><td><span class="ph">{{HOME_STADIUM}}</span></td><td>ホームのスタジアム（行で②にチェック→②）</td><td><span class="ph">{{AWAY_STADIUM}}</span></td><td>アウェイのスタジアム①</td></tr>
-        <tr><td><span class="ph">{{HOME_CITY}}</span></td><td>ホームの都市</td><td><span class="ph">{{AWAY_CITY}}</span></td><td>アウェイの都市</td></tr>
-        <tr><td><span class="ph">{{HOME_COUNTRY}}</span></td><td>ホームの国</td><td><span class="ph">{{AWAY_COUNTRY}}</span></td><td>アウェイの国</td></tr>
-        <tr><td><span class="ph">{{COMPETITION}}</span></td><td>大会名</td><td><span class="ph">{{SEASON}}</span></td><td>シーズン</td></tr>
-        <tr><td><span class="ph">{{MATCHDAY}}</span></td><td>第●節</td><td><span class="ph">{{KICKOFF}}</span></td><td>キックオフ時刻</td></tr>
-        <tr><td><span class="ph">{{DATE}}</span></td><td>開催日（2025年09月16日(火)）</td><td><span class="ph">{{DATE8}}</span></td><td>開催日8桁（20250916）</td></tr>
-        </tbody>
-      </table>
-      <p class="hint">{{HOME_STADIUM}}＝ホームのスタジアム（既定＝①。③対戦リストの各行で「スタジアム②」にチェックすると、その試合だけ②）。{{AWAY_STADIUM}}＝アウェイのスタジアム①。地名を出したいときは {{HOME_STADIUM}}（{{HOME_CITY}}）のように組み合わせられます。</p>
-      <p class="hint">例：タイトルのセルに <span class="ph">{{COMPETITION}}{{SEASON}}</span> 第 <span class="ph">{{MATCHDAY}}</span> 節、のように複数を1セルに並べてもOKです。</p>
     </div>
   </div>
 </div>
@@ -286,8 +261,6 @@ function addFiles(fileList){
 el('file').addEventListener('change',e=>{ addFiles(e.target.files); e.target.value=''; });
 el('drop').addEventListener('dragover',e=>{e.preventDefault();});
 el('drop').addEventListener('drop',e=>{e.preventDefault(); addFiles(e.dataTransfer.files);});
-el('dl-sample').onclick=()=>{ dl(new Blob([SAMPLE_BUF_COPY()],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'スタメン書式_サンプル.xlsx'); };
-function SAMPLE_BUF_COPY(){ return b64ToBuf(SAMPLE_B64); }
 
 // ---- DB tables ----
 function renderSeasonTable(){ const tb=el('season-table').querySelector('tbody'); tb.innerHTML=''; state.seasons.forEach((s,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td><input data-si="${i}" value="${esc(s)}"></td><td class="del" data-dels="${i}">✕</td>`; tb.appendChild(tr); }); }
