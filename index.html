@@ -101,7 +101,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
       <div class="grid">
         <div class="field"><label>シーズン</label><select id="c-season"></select></div>
         <div class="field"><label>大会名</label><select id="c-comp"></select></div>
-        <div class="field"><label>第●節</label><select id="c-md"></select></div>
+        <div class="field"><label>第●節</label><input type="text" id="c-md" placeholder="第●節 / MD● / 準々決勝1stleg"></div>
       </div>
     </div>
 
@@ -232,7 +232,6 @@ function fmtDate(v){ if(!v) return ''; const d=new Date(v+'T00:00:00'); if(isNaN
 function fillCommon(){
   const se=el('c-season'); se.innerHTML=''; state.seasons.forEach(s=>se.appendChild(opt(s)));
   const co=el('c-comp'); co.innerHTML=''; state.competitions.forEach(c=>co.appendChild(opt(c.name)));
-  const md=el('c-md'); md.innerHTML=''; DEFAULT_DATA.matchdays.forEach(m=>md.appendChild(opt(m)));
   if([...se.options].some(o=>o.value==='25/26')) se.value='25/26';
   if([...co.options].some(o=>o.value==='UEFAチャンピオンズリーグ')) co.value='UEFAチャンピオンズリーグ';
 }
