@@ -79,7 +79,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
 </div>
 <div class="tabs">
   <div class="tab active" data-page="make">フォーマット作成</div>
-  <div class="tab" data-page="db">データ管理（シーズン/チーム/大会）</div>
+  <div class="tab" data-page="db">チーム登録</div>
 </div>
 
 <div class="wrap">
@@ -143,14 +143,8 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
   <!-- ===== DB ===== -->
   <div class="page" id="page-db">
     <div class="card">
-      <h2>シーズン登録</h2>
-      <p class="hint">ここで追加したシーズンが「共通設定」に反映されます（例：28/29）。</p>
-      <div class="rowbtns"><button class="btn primary" id="add-season">＋ シーズンを追加</button></div>
-      <table id="season-table"><thead><tr><th>シーズン</th><th></th></tr></thead><tbody></tbody></table>
-    </div>
-    <div class="card">
       <h2>チーム登録</h2>
-      <p class="hint">ホームスタジアムを①②に登録（②は別名や代替名用。任意）。</p>
+      <p class="hint">ホームスタジアムを①②に登録（②は別名や代替名用・任意）。大会名は手打ちでOK（同じ名前ごとにグループ表示されます）。</p>
       <div class="rowbtns"><button class="btn primary" id="add-team">＋ チームを追加</button><button class="btn danger" id="reset">初期データに戻す</button></div>
       <div class="tbl-scroll">
         <table id="team-table">
@@ -158,12 +152,6 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
           <tbody></tbody>
         </table>
       </div>
-    </div>
-    <div class="card">
-      <h2>大会登録</h2>
-      <p class="hint">大会名を登録すると「共通設定」の大会名で選べます。</p>
-      <div class="rowbtns"><button class="btn primary" id="add-comp">＋ 大会を追加</button></div>
-      <table id="comp-table"><thead><tr><th>大会名</th><th></th></tr></thead><tbody></tbody></table>
     </div>
   </div>
 </div>
@@ -206,8 +194,6 @@ function fmtDate(v){ if(!v) return ''; const d=new Date(v+'T00:00:00'); if(isNaN
 
 function fillCommon(){ /* シーズン・大会名・第●節は手打ち入力 */ }
 
-function mdOptions(sel){ let h='<option value="">（共通）</option>'; DEFAULT_DATA.matchdays.forEach(m=>{h+=`<option ${m===sel?'selected':''}>${esc(m)}</option>`;}); return h; }
-function seasonOptions(sel){ let h='<option value="">（共通）</option>'; state.seasons.forEach(s=>{h+=`<option ${s===sel?'selected':''}>${esc(s)}</option>`;}); return h; }
 function tplOptions(sel){ let h='<option value="">（先頭）</option>'; templates.forEach((t,i)=>{h+=`<option value="${i}" ${String(sel)===String(i)?'selected':''}>${esc(t.name)}</option>`;}); return h; }
 function teamOptions(selected){
   const byComp={}; state.teams.forEach(t=>{(byComp[t.comp]=byComp[t.comp]||[]).push(t);});
@@ -229,8 +215,8 @@ function renderRows(){
       <td><select data-i="${i}" data-k="home">${teamOptions(r.home)}</select></td>
       <td><select data-i="${i}" data-k="away">${teamOptions(r.away)}</select></td>
       <td style="text-align:center"><input type="checkbox" data-i="${i}" data-k="use2" ${r.use2?'checked':''}></td>
-      <td><select data-i="${i}" data-k="md">${mdOptions(r.md)}</select></td>
-      <td><select data-i="${i}" data-k="season">${seasonOptions(r.season)}</select></td>
+      <td><input type="text" data-i="${i}" data-k="md" value="${esc(r.md)}" placeholder="（共通）" style="width:96px"></td>
+      <td><input type="text" data-i="${i}" data-k="season" value="${esc(r.season)}" placeholder="（共通）" style="width:80px"></td>
       <td><select data-i="${i}" data-k="tpl">${tplOptions(r.tpl)}</select></td>
       <td class="del" data-del="${i}">✕</td>`;
     tb.appendChild(tr);
@@ -263,18 +249,10 @@ el('drop').addEventListener('dragover',e=>{e.preventDefault();});
 el('drop').addEventListener('drop',e=>{e.preventDefault(); addFiles(e.dataTransfer.files);});
 
 // ---- DB tables ----
-function renderSeasonTable(){ const tb=el('season-table').querySelector('tbody'); tb.innerHTML=''; state.seasons.forEach((s,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td><input data-si="${i}" value="${esc(s)}"></td><td class="del" data-dels="${i}">✕</td>`; tb.appendChild(tr); }); }
-function renderTeamTable(){ const tb=el('team-table').querySelector('tbody'); tb.innerHTML=''; state.teams.forEach((t,i)=>{ const tr=document.createElement('tr'); const cs=state.competitions.map(c=>`<option ${c.name===t.comp?'selected':''}>${esc(c.name)}</option>`).join(''); tr.innerHTML=`<td><select data-i="${i}" data-k="comp">${cs}</select></td><td><input data-i="${i}" data-k="name" value="${esc(t.name)}"></td><td><input data-i="${i}" data-k="country" value="${esc(t.country)}"></td><td><input data-i="${i}" data-k="city" value="${esc(t.city)}"></td><td><input data-i="${i}" data-k="normal" value="${esc(t.normal)}"></td><td><input data-i="${i}" data-k="euro" value="${esc(t.euro)}"></td><td class="del" data-del="${i}">✕</td>`; tb.appendChild(tr); }); }
-function renderCompTable(){ const tb=el('comp-table').querySelector('tbody'); tb.innerHTML=''; state.competitions.forEach((c,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td><input data-ci="${i}" data-k="name" value="${esc(c.name)}"></td><td class="del" data-delc="${i}">✕</td>`; tb.appendChild(tr); }); }
-el('season-table').addEventListener('input',e=>{const i=e.target.dataset.si; if(i!=null){state.seasons[i]=e.target.value; save(); fillCommon();}});
-el('season-table').addEventListener('click',e=>{if(e.target.dataset.dels!=null){state.seasons.splice(+e.target.dataset.dels,1); save(); renderSeasonTable(); fillCommon();}});
-el('add-season').onclick=()=>{state.seasons.push('28/29'); save(); renderSeasonTable(); fillCommon();};
+function renderTeamTable(){ const tb=el('team-table').querySelector('tbody'); tb.innerHTML=''; state.teams.forEach((t,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td><input data-i="${i}" data-k="comp" value="${esc(t.comp)}"></td><td><input data-i="${i}" data-k="name" value="${esc(t.name)}"></td><td><input data-i="${i}" data-k="country" value="${esc(t.country)}"></td><td><input data-i="${i}" data-k="city" value="${esc(t.city)}"></td><td><input data-i="${i}" data-k="normal" value="${esc(t.normal)}"></td><td><input data-i="${i}" data-k="euro" value="${esc(t.euro)}"></td><td class="del" data-del="${i}">✕</td>`; tb.appendChild(tr); }); }
 el('team-table').addEventListener('input',e=>{const i=e.target.dataset.i,k=e.target.dataset.k; if(i!=null){state.teams[i][k]=e.target.value; save();}});
 el('team-table').addEventListener('click',e=>{if(e.target.dataset.del!=null){state.teams.splice(+e.target.dataset.del,1); save(); renderTeamTable(); renderRows();}});
-el('comp-table').addEventListener('input',e=>{const i=e.target.dataset.ci,k=e.target.dataset.k; if(i!=null){state.competitions[i][k]=e.target.value; save(); fillCommon();}});
-el('comp-table').addEventListener('click',e=>{if(e.target.dataset.delc!=null){state.competitions.splice(+e.target.dataset.delc,1); save(); renderCompTable(); fillCommon();}});
-el('add-team').onclick=()=>{state.teams.push({comp:(state.competitions[0]&&state.competitions[0].name)||'',name:'新規チーム',country:'',city:'',normal:'',euro:''}); save(); renderTeamTable();};
-el('add-comp').onclick=()=>{state.competitions.push({name:'新規大会'}); save(); renderCompTable(); fillCommon();};
+el('add-team').onclick=()=>{state.teams.push({comp:'',name:'新規チーム',country:'',city:'',normal:'',euro:''}); save(); renderTeamTable();};
 el('reset').onclick=resetData;
 
 // ---- generate ----
@@ -345,7 +323,7 @@ let toastT;
 function toast(m){const t=el('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
 
 function renderAll(){
-  fillCommon(); renderSeasonTable(); renderTeamTable(); renderCompTable(); renderTemplates(); initFilename();
+  fillCommon(); renderTeamTable(); renderTemplates(); initFilename();
   if(!rows.length){ addRow({home:'ドルトムント',away:'ベンフィカ'}); } else { renderRows(); }
 }
 renderAll();
