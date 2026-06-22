@@ -99,8 +99,8 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
     <div class="card">
       <h2><span class="step">2</span>共通設定</h2>
       <div class="grid">
-        <div class="field"><label>シーズン</label><select id="c-season"></select></div>
-        <div class="field"><label>大会名</label><select id="c-comp"></select></div>
+        <div class="field"><label>シーズン</label><input type="text" id="c-season" placeholder="25/26 など"></div>
+        <div class="field"><label>大会名</label><input type="text" id="c-comp" placeholder="UEFAチャンピオンズリーグ など"></div>
         <div class="field"><label>第●節</label><input type="text" id="c-md" placeholder="第●節 / MD● / 準々決勝1stleg"></div>
       </div>
     </div>
@@ -229,12 +229,7 @@ function esc(s){return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 function stadFor(t){ return (t&&t.normal)||''; }
 function fmtDate(v){ if(!v) return ''; const d=new Date(v+'T00:00:00'); if(isNaN(d)) return ''; const mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0'); return d.getFullYear()+'年'+mm+'月'+dd+'日('+WD[d.getDay()]+')'; }
 
-function fillCommon(){
-  const se=el('c-season'); se.innerHTML=''; state.seasons.forEach(s=>se.appendChild(opt(s)));
-  const co=el('c-comp'); co.innerHTML=''; state.competitions.forEach(c=>co.appendChild(opt(c.name)));
-  if([...se.options].some(o=>o.value==='25/26')) se.value='25/26';
-  if([...co.options].some(o=>o.value==='UEFAチャンピオンズリーグ')) co.value='UEFAチャンピオンズリーグ';
-}
+function fillCommon(){ /* シーズン・大会名・第●節は手打ち入力 */ }
 
 function mdOptions(sel){ let h='<option value="">（共通）</option>'; DEFAULT_DATA.matchdays.forEach(m=>{h+=`<option ${m===sel?'selected':''}>${esc(m)}</option>`;}); return h; }
 function seasonOptions(sel){ let h='<option value="">（共通）</option>'; state.seasons.forEach(s=>{h+=`<option ${s===sel?'selected':''}>${esc(s)}</option>`;}); return h; }
