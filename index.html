@@ -67,6 +67,8 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
 .upload:hover{border-color:var(--g2);background:#eafaf0}
 .colnum{width:34px}
 #team-table{table-layout:fixed}
+#team-table th,#team-table td{padding:6px 9px}
+#team-table td input{width:100%}
 </style>
 </head>
 <body>
@@ -150,7 +152,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
       <input type="text" id="team-search" placeholder="🔍 チーム名で検索（二重登録の確認）" style="margin-top:10px">
       <div class="tbl-scroll">
         <table id="team-table">
-          <thead><tr><th data-sort="name" style="width:15%;cursor:pointer">チーム名 <span id="ar-name"></span></th><th data-sort="country" style="width:9%;cursor:pointer">国 <span id="ar-country"></span></th><th style="width:11%">都市</th><th style="width:29.5%">ホームスタジアム①</th><th style="width:29.5%">ホームスタジアム②</th><th style="width:6%"></th></tr></thead>
+          <thead><tr><th data-sort="name" style="width:14%;cursor:pointer">チーム名 <span id="ar-name"></span></th><th data-sort="country" style="width:11%;cursor:pointer">国 <span id="ar-country"></span></th><th style="width:12%">都市</th><th style="width:28.5%">ホームスタジアム①</th><th style="width:28.5%">ホームスタジアム②</th><th style="width:6%"></th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -184,6 +186,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   t.classList.add('active');
   document.getElementById('page-'+t.dataset.page).classList.add('active');
+  if(t.dataset.page==='db') renderTeamTable();
 });
 
 function el(id){return document.getElementById(id);}
