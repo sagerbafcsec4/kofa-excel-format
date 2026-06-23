@@ -83,6 +83,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
 <div class="tabs">
   <div class="tab active" data-page="make">フォーマット作成</div>
   <div class="tab" data-page="db">チーム登録</div>
+  <div class="tab" data-page="help">プレースホルダ</div>
 </div>
 
 <div class="wrap">
@@ -94,15 +95,15 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
         <input type="file" id="file" accept=".xlsx" multiple style="display:none">
       </label>
       <ul class="tpllist" id="tpl-list"></ul>
-      <p class="hint">テンプレートのセルに <span class="ph">{{HOME_TEAM}}</span><span class="ph">{{AWAY_TEAM}}</span><span class="ph">{{HOME_STADIUM}}</span> などを書いておくと差し替わります（全シート対象・書式そのまま）。使えるトークンは下の各欄に表示しています。</p>
+      <p class="hint">フォーマットベースのセルに {{プレースホルダ}} を書いておくと差し替わります（全シート対象・書式そのまま）。一覧は「プレースホルダ」タブ。</p>
     </div>
 
     <div class="card">
       <h2><span class="step">2</span>共通設定</h2>
       <div class="grid">
-        <div class="field"><label>シーズン <span class="ph">{{SEASON}}</span></label><input type="text" id="c-season" placeholder="25/26 など"></div>
-        <div class="field"><label>大会名 <span class="ph">{{COMPETITION}}</span></label><input type="text" id="c-comp" placeholder="UEFAチャンピオンズリーグ など"></div>
-        <div class="field"><label>第●節 <span class="ph">{{MATCHDAY}}</span></label><input type="text" id="c-md" placeholder="第●節 / MD● / 準々決勝1stleg"></div>
+        <div class="field"><label>シーズン</label><input type="text" id="c-season" placeholder="25/26 など"></div>
+        <div class="field"><label>大会名</label><input type="text" id="c-comp" placeholder="UEFAチャンピオンズリーグ など"></div>
+        <div class="field"><label>第●節</label><input type="text" id="c-md" placeholder="第●節 / MD● / 準々決勝1stleg"></div>
       </div>
     </div>
 
@@ -111,8 +112,8 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
       <div class="tbl-scroll">
         <table id="match-table">
           <thead><tr>
-            <th class="colnum">#</th><th>開催日<br><span class="ph">{{DATE}}</span></th><th>KO<br><span class="ph">{{KICKOFF}}</span></th><th>ホーム<br><span class="ph">{{HOME_TEAM}}</span></th><th>アウェイ<br><span class="ph">{{AWAY_TEAM}}</span></th>
-            <th>スタジアム②<br><span class="ph">→{{HOME_STADIUM}}</span></th><th>テンプレート</th><th></th>
+            <th class="colnum">#</th><th>開催日</th><th>KO</th><th>ホーム</th><th>アウェイ</th>
+            <th>スタジアム②</th><th>テンプレート</th><th></th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -121,7 +122,6 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
         <button class="btn primary" id="add-row">＋ 行を追加</button>
         <button class="btn" id="clear-rows">クリア</button>
       </div>
-      <p class="hint">そのほか自動で入るトークン：<span class="ph">{{HOME_STADIUM}}</span><span class="ph">{{AWAY_STADIUM}}</span><span class="ph">{{HOME_CITY}}</span><span class="ph">{{AWAY_CITY}}</span><span class="ph">{{HOME_COUNTRY}}</span><span class="ph">{{AWAY_COUNTRY}}</span><span class="ph">{{DATE8}}</span>（チーム・地名はデータ管理の登録から自動取得。{{DATE8}}＝20250916）</p>
       <details>
         <summary>まとめて貼り付けて追加（1行に1試合）</summary>
         <p class="hint">「ホーム ［タブ/カンマ］ アウェイ ［タブ/カンマ］ 開催日(任意) ［タブ/カンマ］ KO(任意)」を1行に1試合で。</p>
@@ -139,7 +139,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
       <div class="rowbtns"><button class="btn" id="fn-add">＋ 現在の書式をプリセットに登録</button><button class="btn danger" id="fn-del">選択中のプリセットを削除</button></div>
       <div style="display:none">
       </div>
-      <p class="hint">使えるトークン：<span class="ph">{HOME_TEAM}</span><span class="ph">{AWAY_TEAM}</span><span class="ph">{COMPETITION}</span><span class="ph">{SEASON}</span><span class="ph">{MATCHDAY}</span><span class="ph">{DATE}</span><span class="ph">{DATE8}</span><span class="ph">{KICKOFF}</span>（{DATE8}＝20250916形式）。拡張子.xlsxは自動付与。</p>
+      <p class="hint">{ } で囲んだトークンがファイル名に入ります（例：{HOME_TEAM}）。一覧は「プレースホルダ」タブ。拡張子.xlsxは自動付与。</p>
     </div>
 
     <button class="dlbtn" id="dl">Excelをまとめてダウンロード</button>
@@ -159,6 +159,29 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
           <tbody></tbody>
         </table>
       </div>
+    </div>
+  </div>
+  <div class="page" id="page-help">
+    <div class="card">
+      <h2>使い方</h2>
+      <p class="hint">1) フォーマットベース(.xlsx)のセルに下のプレースホルダを書く → 2) このアプリに読み込む → 3) 共通設定と対戦リストを入力 → 4) まとめてダウンロード。書式・結合セル・複数シートはそのまま保持されます。</p>
+    </div>
+    <div class="card">
+      <h2>差し込みプレースホルダ（テンプレートのセル用・二重カッコ）</h2>
+      <table style="margin-top:6px"><tbody>
+        <tr><td><span class="ph">{{HOME_TEAM}}</span></td><td>ホームチーム名</td><td><span class="ph">{{AWAY_TEAM}}</span></td><td>アウェイチーム名</td></tr>
+        <tr><td><span class="ph">{{HOME_STADIUM}}</span></td><td>ホームのスタジアム（行で②チェック→②）</td><td><span class="ph">{{AWAY_STADIUM}}</span></td><td>アウェイのスタジアム①</td></tr>
+        <tr><td><span class="ph">{{HOME_CITY}}</span></td><td>ホームの都市</td><td><span class="ph">{{AWAY_CITY}}</span></td><td>アウェイの都市</td></tr>
+        <tr><td><span class="ph">{{HOME_COUNTRY}}</span></td><td>ホームの国</td><td><span class="ph">{{AWAY_COUNTRY}}</span></td><td>アウェイの国</td></tr>
+        <tr><td><span class="ph">{{COMPETITION}}</span></td><td>大会名</td><td><span class="ph">{{SEASON}}</span></td><td>シーズン</td></tr>
+        <tr><td><span class="ph">{{MATCHDAY}}</span></td><td>第●節</td><td><span class="ph">{{KICKOFF}}</span></td><td>キックオフ</td></tr>
+        <tr><td><span class="ph">{{DATE}}</span></td><td>開催日（2025年09月16日(火)）</td><td><span class="ph">{{DATE8}}</span></td><td>開催日8桁（20250916）</td></tr>
+      </tbody></table>
+      <p class="hint">地名を付けたいときは {{HOME_STADIUM}}（{{HOME_CITY}}）のように1セルに並べてもOKです。</p>
+    </div>
+    <div class="card">
+      <h2>ファイル名のトークン（1重カッコ）</h2>
+      <p class="hint"><span class="ph">{HOME_TEAM}</span><span class="ph">{AWAY_TEAM}</span><span class="ph">{COMPETITION}</span><span class="ph">{SEASON}</span><span class="ph">{MATCHDAY}</span><span class="ph">{DATE}</span><span class="ph">{DATE8}</span><span class="ph">{KICKOFF}</span>（{DATE8}＝20250916形式）。拡張子.xlsxは自動付与。</p>
     </div>
   </div>
 </div>
