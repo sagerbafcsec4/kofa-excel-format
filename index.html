@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Excelフォーマット自動作成</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMyMTczNDYiLz48dGV4dCB4PSIzMiIgeT0iNDciIGZvbnQtZmFtaWx5PSJBcmlhbCxIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkU8L3RleHQ+PC9zdmc+">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Inter:wght@400;500;600;700;800&family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
 <style>
@@ -321,15 +320,12 @@ function valsFor(r){
     'DATE':fmtDate(r.date),'DATE8':ymd,'KICKOFF':r.ko||''
   };
 }
-function repl(s,vals){ return s.replace(/\{\{\s*([^}]+?)\s*\}\}/g,(m,k)=> (k in vals)? vals[k] : m); }
+function xmlEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 async function fillTemplate(buf, vals){
-  const wb=new ExcelJS.Workbook(); await wb.xlsx.load(buf.slice(0));
-  wb.eachSheet(ws=>{ ws.eachRow({includeEmpty:false},row=>{ row.eachCell({includeEmpty:false},cell=>{
-    const v=cell.value;
-    if(typeof v==='string'){ if(v.indexOf('{{')>=0) cell.value=repl(v,vals); }
-    else if(v && v.richText){ cell.value={richText:v.richText.map(rt=>({...rt,text:repl(rt.text||'',vals)}))}; }
-  });});});
-  return wb.xlsx.writeBuffer();
+  const zip=await JSZip.loadAsync(buf.slice(0));
+  const targets=Object.keys(zip.files).filter(p=>/^xl\/(sharedStrings\.xml|worksheets\/[^/]+\.xml|drawings\/[^/]+\.xml|chartsheets\/[^/]+\.xml)$/.test(p));
+  for(const p of targets){ let t=await zip.file(p).async('string'); if(t.indexOf('{{')<0) continue; t=t.replace(/\{\{\s*([^}]+?)\s*\}\}/g,(m,k)=> (k in vals)? xmlEsc(vals[k]) : m); zip.file(p,t); }
+  return zip.generateAsync({type:'arraybuffer',compression:'DEFLATE'});
 }
 const DEFAULT_PRESETS=['【試合記録】{COMPETITION}{MATCHDAY}_{HOME_TEAM}対{AWAY_TEAM}','【試合記録】{HOME_TEAM}対{AWAY_TEAM}'];
 function fnPresets(){ if(!state.fnPresets||!state.fnPresets.length) state.fnPresets=DEFAULT_PRESETS.slice(); return state.fnPresets; }
