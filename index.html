@@ -166,13 +166,16 @@ const DEFAULT_DATA = {"seasons": ["24/25", "25/26", "26/27", "27/28"], "competit
 const SAMPLE_B64 = "";
 const WD = ['日','月','火','水','木','金','土'];
 const LS = 'matchrecord_v1';
+const COUNTRY_ORDER=['イングランド','スペイン','ドイツ','イタリア','フランス','オランダ','ポルトガル','ベルギー','スコットランド','トルコ','ギリシャ','オーストリア','スイス','デンマーク','ノルウェー','セルビア','クロアチア','チェコ'];
+function countryRank(c){const i=COUNTRY_ORDER.indexOf((c||'').trim());return i<0?999:i;}
+function sortTeams(key,asc){const d=asc?1:-1;state.teams.sort((a,b)=>{if(key==='country'){const r=countryRank(a.country)-countryRank(b.country);if(r)return r*d;const cc=String(a.country||'').localeCompare(String(b.country||''),'ja');if(cc)return cc*d;return String(a.name||'').localeCompare(String(b.name||''),'ja');}return String(a[key]||'').localeCompare(String(b[key]||''),'ja')*d;});}
 
 function b64ToBuf(b64){const bin=atob(b64);const len=bin.length;const u=new Uint8Array(len);for(let i=0;i<len;i++)u[i]=bin.charCodeAt(i);return u.buffer;}
 
 let state = load();
 let rows = [];
 let templates = [];
-let teamSort={key:'',asc:true};
+let teamSort={key:'country',asc:true};
 
 function load(){
   try{const s=JSON.parse(localStorage.getItem(LS)); if(s&&s.teams&&s.competitions) return s;}catch(e){}
@@ -251,7 +254,7 @@ function fitFont(inp){ let f=14; inp.style.fontSize=f+"px"; let g=0; while(inp.s
 function updateSortArrows(){ const n=el('ar-name'),c=el('ar-country'); if(n)n.textContent=teamSort.key==='name'?(teamSort.asc?'▲':'▼'):''; if(c)c.textContent=teamSort.key==='country'?(teamSort.asc?'▲':'▼'):''; }
 function renderTeamTable(){ updateSortArrows(); const q=(el('team-search').value||'').toLowerCase(); const tb=el('team-table').querySelector('tbody'); tb.innerHTML=''; state.teams.forEach((t,i)=>{ if(q && !((t.name||'').toLowerCase().includes(q))) return; const tr=document.createElement('tr'); tr.innerHTML=`<td><input data-i="${i}" data-k="name" value="${esc(t.name)}"></td><td><input data-i="${i}" data-k="country" value="${esc(t.country)}"></td><td><input data-i="${i}" data-k="city" value="${esc(t.city)}"></td><td><input data-i="${i}" data-k="normal" value="${esc(t.normal)}"></td><td><input data-i="${i}" data-k="euro" value="${esc(t.euro)}"></td><td class="del" data-del="${i}">✕</td>`; tb.appendChild(tr); }); requestAnimationFrame(()=>tb.querySelectorAll('input').forEach(fitFont)); }
 el('team-table').addEventListener('input',e=>{const i=e.target.dataset.i,k=e.target.dataset.k; if(i!=null){state.teams[i][k]=e.target.value; save(); fitFont(e.target);}});
-el('team-table').addEventListener('click',e=>{ const th=e.target.closest('th[data-sort]'); if(th){ const k=th.dataset.sort; teamSort.asc=(teamSort.key===k)?!teamSort.asc:true; teamSort.key=k; state.teams.sort((a,b)=>String(a[k]||'').localeCompare(String(b[k]||''),'ja')*(teamSort.asc?1:-1)); save(); renderTeamTable(); return; } if(e.target.dataset.del!=null){state.teams.splice(+e.target.dataset.del,1); save(); renderTeamTable(); renderRows();} });
+el('team-table').addEventListener('click',e=>{ const th=e.target.closest('th[data-sort]'); if(th){ const k=th.dataset.sort; teamSort.asc=(teamSort.key===k)?!teamSort.asc:true; teamSort.key=k; sortTeams(k,teamSort.asc); save(); renderTeamTable(); return; } if(e.target.dataset.del!=null){state.teams.splice(+e.target.dataset.del,1); save(); renderTeamTable(); renderRows();} });
 el('add-team').onclick=()=>{state.teams.push({name:'新規チーム',country:'',city:'',normal:'',euro:''}); save(); el('team-search').value=''; renderTeamTable();};
 el('team-search').addEventListener('input',renderTeamTable);
 el('reset').onclick=resetData;
@@ -324,7 +327,7 @@ let toastT;
 function toast(m){const t=el('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
 
 function renderAll(){
-  fillCommon(); renderTeamTable(); renderTemplates(); initFilename();
+  fillCommon(); sortTeams('country',true); renderTeamTable(); renderTemplates(); initFilename();
   if(!rows.length){ addRow({home:'ドルトムント',away:'ベンフィカ'}); } else { renderRows(); }
 }
 renderAll();
