@@ -130,12 +130,16 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
     </div>
 
     <div class="card">
-      <h2><span class="step">3</span>対戦リスト（何試合でも）</h2>
+      <h2><span class="step">3</span>ファイル名（共通）</h2>
       <div class="grid">
-        <div class="field"><label>ファイル名（共通）</label><select id="fn-preset"></select></div>
+        <div class="field"><label>オプションから選ぶ</label><select id="fn-preset"></select></div>
         <div class="field" style="grid-column:2/4"><label>ファイル名</label><input type="text" id="fn-pattern"></div>
       </div>
-      <div class="tbl-scroll" style="margin-top:18px"><div id="match-list" class="matchlist"></div></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="step">4</span>対戦リスト（何試合でも）</h2>
+      <div class="tbl-scroll"><div id="match-list" class="matchlist"></div></div>
       <div class="rowbtns">
         <button class="btn primary" id="add-row">＋ 行を追加</button>
         <button class="btn" id="clear-rows">クリア</button>
