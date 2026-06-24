@@ -384,15 +384,21 @@ async function saveToFolder(){
   }catch(err){console.error(err); toast('エラー: '+err.message);}
   btn.disabled=false; btn.textContent=old;
 }
+function stamp(){ const d=new Date(), p=n=>String(n).padStart(2,'0'); return ''+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes()); }
 async function saveAsZip(){
   const btn=el('dl-zip'), old=btn.textContent; btn.disabled=true;
   try{
     const files=await buildAll(); if(!files){ btn.disabled=false; btn.textContent=old; return; }
-    if(files.length===1){ dl(new Blob([files[0].buf],{type:XLSX_MIME}), files[0].nm); }
+    if(files.length===1){ dl(new Blob([files[0].buf],{type:XLSX_MIME}), files[0].nm); toast('1件を保存しました'); }
     else { btn.textContent='ZIP作成中…'; const zip=new JSZip(); files.forEach(f=>zip.file(f.nm,f.buf));
       const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
-      dl(blob, `kofa-excel-format_${safe(el('c-comp').value)||'match'}.zip`); }
-    toast(files.length+'件を保存しました');
+      const name=`Excelフォーマット_${stamp()}.zip`;
+      if(window.showSaveFilePicker){
+        try{ const h=await window.showSaveFilePicker({suggestedName:name, types:[{description:'ZIP',accept:{'application/zip':['.zip']}}]}); const w=await h.createWritable(); await w.write(blob); await w.close(); }
+        catch(e){ if(e.name==='AbortError'){ btn.disabled=false; btn.textContent=old; return; } dl(blob,name); }
+      } else { dl(blob,name); }
+      toast(files.length+'件を保存しました');
+    }
   }catch(err){console.error(err); toast('エラー: '+err.message);}
   btn.disabled=false; btn.textContent=old;
 }
