@@ -45,6 +45,13 @@ select:focus,input:focus,textarea:focus{outline:none;border-color:var(--g1);box-
 .dlrow .dlbtn{margin-top:0;flex:1}
 .dlbtn.alt{background:#fff;color:#217346;border:2px solid #217346;box-shadow:none}
 .dlbtn.alt:hover{background:#f0f8f3;box-shadow:none}
+.verify-log{margin-top:14px;font-size:13px}
+.verify-log .vsum{font-weight:800;padding:9px 12px;border-radius:10px;margin-bottom:8px}
+.verify-log .vsum.ok{background:#e3f4ea;color:#1e7e45}
+.verify-log .vsum.warn{background:#fdecea;color:#c0392b}
+.verify-log .vrow{padding:3px 10px;line-height:1.6}
+.verify-log .vrow.ok{color:#2f6b4c}
+.verify-log .vrow.warn{color:#c0392b;font-weight:700}
 .acts{white-space:nowrap}
 .rowbtn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:3px 8px;font-size:12px;cursor:pointer;margin:0 2px;color:#2b3a31}
 .rowbtn:hover{background:#f0f8f3}
@@ -152,6 +159,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
     </div>
 
     <div class="dlrow"><button class="dlbtn" id="dl-folder">フォルダを選んで個別に保存</button><button class="dlbtn alt" id="dl-zip">ZIPにまとめて保存</button></div>
+    <div id="verify-log" class="verify-log" style="display:none"></div>
   </div>
 
   <!-- ===== DB ===== -->
@@ -344,11 +352,37 @@ function valsFor(r){
   };
 }
 function xmlEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+const FILL_TOK=/\{\{\s*([^}]+?)\s*\}\}/g;
 async function fillTemplate(buf, vals){
   const zip=await JSZip.loadAsync(buf.slice(0));
   const targets=Object.keys(zip.files).filter(p=>/^xl\/(sharedStrings\.xml|worksheets\/[^/]+\.xml|drawings\/[^/]+\.xml|chartsheets\/[^/]+\.xml)$/.test(p));
-  for(const p of targets){ let t=await zip.file(p).async('string'); if(t.indexOf('{{')<0) continue; t=t.replace(/\{\{\s*([^}]+?)\s*\}\}/g,(m,k)=> (k in vals)? xmlEsc(vals[k]) : m); zip.file(p,t); }
-  return zip.generateAsync({type:'arraybuffer',compression:'DEFLATE'});
+  const orig={};
+  for(const p of targets){ const t=await zip.file(p).async('string'); if(t.indexOf('{{')<0) continue; orig[p]=t; zip.file(p, t.replace(FILL_TOK,(m,k)=> (k in vals)? xmlEsc(vals[k]) : m)); }
+  const outBuf=await zip.generateAsync({type:'arraybuffer',compression:'DEFLATE'});
+  const verify=await verifyFill(outBuf, orig, vals);
+  return {buf:outBuf, verify};
+}
+async function verifyFill(outBuf, orig, vals){
+  try{
+    const z=await JSZip.loadAsync(outBuf);
+    for(const p of Object.keys(orig)){
+      const expected=orig[p].replace(FILL_TOK,(m,k)=> (k in vals)? xmlEsc(vals[k]) : m);
+      const actual=await z.file(p).async('string');
+      if(actual!==expected){
+        let i=0; while(i<expected.length&&i<actual.length&&expected[i]===actual[i]) i++;
+        const near=actual.slice(Math.max(0,i-18), i+18).replace(/[\r\n]+/g,' ');
+        return {ok:false, where:p.split('/').pop(), near};
+      }
+    }
+    return {ok:true};
+  }catch(e){ return {ok:false, where:'検証実行', near:String(e&&e.message||e)}; }
+}
+function renderVerify(files){
+  const box=el('verify-log'); if(!box) return;
+  const ng=files.filter(f=>f.verify&&!f.verify.ok);
+  let h='<div class="vsum '+(ng.length?'warn':'ok')+'">🔍 出力前チェック：'+(ng.length?('⚠ '+ng.length+'件に想定外の差分（要確認）'):('全'+files.length+'件 OK ／ 差し込みのみ・既存データの改変なし'))+'</div>';
+  h+=files.map(f=>{ const v=f.verify||{ok:true}; return '<div class="vrow '+(v.ok?'ok':'warn')+'">'+(v.ok?'✓':'⚠')+' '+esc(f.nm)+(v.ok?'':' — 固定部分に想定外の差分（'+esc(v.where)+' 付近: '+esc(v.near||'')+'）')+'</div>'; }).join('');
+  box.innerHTML=h; box.style.display='block';
 }
 const DEFAULT_PRESETS=['【試合記録】{COMPETITION}{MATCHDAY}_{HOME_TEAM}対{AWAY_TEAM}','【試合記録】{HOME_TEAM}対{AWAY_TEAM}'];
 function fnPresets(){ if(!state.fnPresets||!state.fnPresets.length) state.fnPresets=DEFAULT_PRESETS.slice(); return state.fnPresets; }
@@ -365,9 +399,10 @@ async function buildAll(){
   if(!valid.length){toast('ホームとアウェイを入力してください');return null;}
   const out=[]; const seen={};
   for(let i=0;i<valid.length;i++){ const r=valid[i]; const t=templates[r.tpl?+r.tpl:0]||templates[0];
-    const buf=await fillTemplate(t.buf, valsFor(r)); let nm=fileNameFor(r);
+    const res=await fillTemplate(t.buf, valsFor(r)); let nm=fileNameFor(r);
     if(seen[nm]){seen[nm]++; nm=nm.replace(/\.xlsx$/,`_${seen[nm]}.xlsx`);} else seen[nm]=1;
-    out.push({nm,buf}); }
+    out.push({nm,buf:res.buf,verify:res.verify}); }
+  renderVerify(out);
   return out;
 }
 async function saveToFolder(){
