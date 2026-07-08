@@ -236,10 +236,21 @@ async function loadSheet(){
     const txt = await res.text();
     const rows = parseCSV(txt).filter(r=>r.some(c=>(c||'').trim()!==''));
     if(rows.length<2) return;
-    let s=0; if(/チーム名|name/i.test(rows[0].join(','))) s=1;
+    const hasHeader = /チーム名|name/i.test(rows[0].join(','));
+    let idx;
+    if(hasHeader){
+      const H=rows[0].map(h=>(h||'').trim());
+      const find=(...keys)=>{ for(let i=0;i<H.length;i++){ if(keys.some(k=>H[i].includes(k))) return i; } return -1; };
+      idx={ name:find('チーム名','name'), alt:find('別表記','別名'), country:find('国'), city:find('都市'), normal:find('①','スタジアム1','スタジアム①'), euro:find('②','スタジアム2','スタジアム②') };
+      if(idx.name<0) idx.name=0;
+    } else {
+      idx={ name:0, country:1, city:2, normal:3, euro:4, alt:5 };
+    }
+    const g=(r,k)=> (idx[k]>=0 ? (r[idx[k]]||'') : '').trim();
+    const s = hasHeader?1:0;
     const list=[];
-    for(let k=s;k<rows.length;k++){const r=rows[k];const name=(r[0]||'').trim();if(!name)continue;
-      list.push({name,country:(r[1]||'').trim(),city:(r[2]||'').trim(),normal:(r[3]||'').trim(),euro:(r[4]||'').trim(),alt:(r[5]||'').trim()});}
+    for(let k=s;k<rows.length;k++){const r=rows[k];const name=g(r,'name');if(!name)continue;
+      list.push({name,alt:g(r,'alt'),country:g(r,'country'),city:g(r,'city'),normal:g(r,'normal'),euro:g(r,'euro')});}
     if(!list.length) return;
     state.teams = list; save(); sortTeams('country',true); renderTeamTable(); renderRows();
     toast(list.length+'チームを共有シートから読み込みました');
