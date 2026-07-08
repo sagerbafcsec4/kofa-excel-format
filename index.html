@@ -174,7 +174,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
       <div class="rowbtns" style="margin-bottom:18px"><a class="btn primary" href="https://docs.google.com/spreadsheets/d/1USqNCDdUBc2hJfv4Vw5JuORWfUF6kitjEasfvelm6MQ/edit?gid=0#gid=0" target="_blank" rel="noopener" style="white-space:nowrap">共有シートを開いて編集</a><input type="text" id="team-search" placeholder="🔍 チーム名・国・都市・スタジアムで検索" style="flex:1;min-width:220px"></div>
       <div class="tbl-scroll">
         <table id="team-table">
-          <thead><tr><th data-sort="name" style="width:16%;cursor:pointer">チーム名 <span id="ar-name"></span></th><th data-sort="country" style="width:12%;cursor:pointer">国 <span id="ar-country"></span></th><th style="width:13%">都市</th><th style="width:29.5%">ホームスタジアム①</th><th style="width:29.5%">ホームスタジアム②</th></tr></thead>
+          <thead><tr><th data-sort="name" style="width:15%;cursor:pointer">チーム名 <span id="ar-name"></span></th><th style="width:15%">別表記</th><th data-sort="country" style="width:10%;cursor:pointer">国 <span id="ar-country"></span></th><th style="width:11%">都市</th><th style="width:24.5%">ホームスタジアム①</th><th style="width:24.5%">ホームスタジアム②</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -239,7 +239,7 @@ async function loadSheet(){
     let s=0; if(/チーム名|name/i.test(rows[0].join(','))) s=1;
     const list=[];
     for(let k=s;k<rows.length;k++){const r=rows[k];const name=(r[0]||'').trim();if(!name)continue;
-      list.push({name,country:(r[1]||'').trim(),city:(r[2]||'').trim(),normal:(r[3]||'').trim(),euro:(r[4]||'').trim()});}
+      list.push({name,country:(r[1]||'').trim(),city:(r[2]||'').trim(),normal:(r[3]||'').trim(),euro:(r[4]||'').trim(),alt:(r[5]||'').trim()});}
     if(!list.length) return;
     state.teams = list; save(); sortTeams('country',true); renderTeamTable(); renderRows();
     toast(list.length+'チームを共有シートから読み込みました');
@@ -258,7 +258,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
 function el(id){return document.getElementById(id);}
 function opt(v,t){const o=document.createElement('option');o.value=v;o.textContent=t||v;return o;}
 // 大会の種別は廃止
-function teamObj(name){return state.teams.find(t=>t.name===name);}
+function teamObj(name){const n=(name||'').trim();return state.teams.find(t=>t.name===n||(t.alt&&t.alt===n));}
 function esc(s){return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 
 function stadFor(t){ return (t&&t.normal)||''; }
@@ -289,13 +289,14 @@ function renderRows(){
         <div class="mfield"><span>開催日</span><input type="date" data-i="${i}" data-k="date" value="${esc(r.date)}"></div>
         <div class="mfield"><span>KO</span><input type="time" data-i="${i}" data-k="ko" value="${esc(r.ko)}"></div>
         <div class="mfield chk"><input type="checkbox" id="u2-${i}" data-i="${i}" data-k="use2" ${r.use2?'checked':''}><label for="u2-${i}">スタジアム②を使う</label></div>
+        <div class="mfield chk"><input type="checkbox" id="alt-${i}" data-i="${i}" data-k="alt2" ${r.alt2?'checked':''}><label for="alt-${i}">別表記を使う</label></div>
         ${tplField}
         <div class="mfield grow"><span>ファイル名</span><select data-i="${i}" data-k="fnSel" class="rowfn">${fnRowOptions(r.fnSel||'')}</select><input data-i="${i}" data-k="fnText" class="rowfntext" placeholder="この行だけの名前" value="${esc(r.fnText||'')}" style="${(r.fnSel==='__custom__')?'':'display:none;'}margin-top:5px"></div>
       </div>`;
     wrap.appendChild(card);
   });
 }
-function addRow(data){ rows.push(Object.assign({date:'',ko:'21:00',home:'',away:'',use2:false,tpl:'',fnSel:'',fnText:''}, data||{})); renderRows(); }
+function addRow(data){ rows.push(Object.assign({date:'',ko:'21:00',home:'',away:'',use2:false,alt2:false,tpl:'',fnSel:'',fnText:''}, data||{})); renderRows(); }
 
 el('match-list').addEventListener('input',e=>{
   const i=e.target.dataset.i,k=e.target.dataset.k; if(i==null)return;
@@ -332,7 +333,7 @@ function updateSortArrows(){ const n=el('ar-name'),c=el('ar-country'); if(n)n.te
 function parseCSV(x){x=String(x).replace(/\r\n/g,'\n').replace(/\r/g,'\n');const rows=[];let f='',row=[],q=false;for(let i=0;i<x.length;i++){const c=x[i];if(q){if(c==='"'){if(x[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}else{if(c==='"')q=true;else if(c===',' ){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else f+=c;}}if(f!==''||row.length){row.push(f);rows.push(row);}return rows;}
 function importCSV(txt){const rows=parseCSV(txt).filter(r=>r.some(c=>(c||'').trim()!==''));let s=0;if(rows.length&&/チーム名|name/i.test(rows[0].join(',')))s=1;let n=0;for(let k=s;k<rows.length;k++){const r=rows[k];const name=(r[0]||'').trim();if(!name)continue;state.teams.push({name,country:(r[1]||'').trim(),city:(r[2]||'').trim(),normal:(r[3]||'').trim(),euro:(r[4]||'').trim()});n++;}if(n){save();sortTeams('country',true);renderTeamTable();}toast(n+'件を追加しました');}
 function dlCsvTemplate(){const csv='\ufeffチーム名,国,都市,ホームスタジアム①,ホームスタジアム②\nドルトムント,ドイツ,ドルトムント,シュタディオン・ドルトムント,BVBシュタディオン・ドルトムント\n';dl(new Blob([csv],{type:'text/csv'}),'teams_template.csv');}
-function renderTeamTable(){ updateSortArrows(); const q=(el('team-search').value||'').toLowerCase(); const tb=el('team-table').querySelector('tbody'); tb.innerHTML=''; state.teams.forEach((t,i)=>{ if(q && ![t.name,t.country,t.city,t.normal,t.euro].some(v=>(v||'').toLowerCase().includes(q))) return; const tr=document.createElement('tr'); tr.innerHTML=`<td>${esc(t.name)}</td><td>${esc(t.country)}</td><td>${esc(t.city)}</td><td>${esc(t.normal)}</td><td>${esc(t.euro)}</td>`; tb.appendChild(tr); }); }
+function renderTeamTable(){ updateSortArrows(); const q=(el('team-search').value||'').toLowerCase(); const tb=el('team-table').querySelector('tbody'); tb.innerHTML=''; state.teams.forEach((t,i)=>{ if(q && ![t.name,t.alt,t.country,t.city,t.normal,t.euro].some(v=>(v||'').toLowerCase().includes(q))) return; const tr=document.createElement('tr'); tr.innerHTML=`<td>${esc(t.name)}</td><td>${esc(t.alt)}</td><td>${esc(t.country)}</td><td>${esc(t.city)}</td><td>${esc(t.normal)}</td><td>${esc(t.euro)}</td>`; tb.appendChild(tr); }); }
 el('team-table').addEventListener('input',e=>{const i=e.target.dataset.i,k=e.target.dataset.k; if(i!=null){state.teams[i][k]=e.target.value; save(); fitFont(e.target);}});
 el('team-table').addEventListener('click',e=>{ const th=e.target.closest('th[data-sort]'); if(th){ const k=th.dataset.sort; teamSort.asc=(teamSort.key===k)?!teamSort.asc:true; teamSort.key=k; sortTeams(k,teamSort.asc); save(); renderTeamTable(); return; } if(e.target.dataset.del!=null){state.teams.splice(+e.target.dataset.del,1); save(); renderTeamTable(); renderRows();} });
 el('team-search').addEventListener('input',renderTeamTable);
@@ -346,7 +347,7 @@ function valsFor(r){
   const th=teamObj(r.home)||{}, ta=teamObj(r.away)||{};
   let ymd=''; if(r.date){const d=new Date(r.date+'T00:00:00'); if(!isNaN(d)) ymd=''+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');}
   return {
-    'HOME_TEAM':r.home,'AWAY_TEAM':r.away,
+    'HOME_TEAM':(r.alt2&&th.alt?th.alt:r.home),'AWAY_TEAM':(r.alt2&&ta.alt?ta.alt:r.away),
     'HOME_STADIUM':(r.use2?(th.euro||th.normal):th.normal)||'','AWAY_STADIUM':(ta.normal||''),
     'HOME_CITY':th.city||'','AWAY_CITY':ta.city||'',
     'HOME_COUNTRY':th.country||'','AWAY_COUNTRY':ta.country||'',
