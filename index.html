@@ -300,7 +300,6 @@ function renderRows(){
         <div class="mfield"><span>開催日</span><input type="date" data-i="${i}" data-k="date" value="${esc(r.date)}"></div>
         <div class="mfield"><span>KO</span><input type="time" data-i="${i}" data-k="ko" value="${esc(r.ko)}"></div>
         <div class="mfield chk"><input type="checkbox" id="u2-${i}" data-i="${i}" data-k="use2" ${r.use2?'checked':''}><label for="u2-${i}">スタジアム②を使う</label></div>
-        <div class="mfield chk"><input type="checkbox" id="alt-${i}" data-i="${i}" data-k="alt2" ${r.alt2?'checked':''}><label for="alt-${i}">別表記を使う</label></div>
         ${tplField}
         <div class="mfield grow"><span>ファイル名</span><select data-i="${i}" data-k="fnSel" class="rowfn">${fnRowOptions(r.fnSel||'')}</select><input data-i="${i}" data-k="fnText" class="rowfntext" placeholder="この行だけの名前" value="${esc(r.fnText||'')}" style="${(r.fnSel==='__custom__')?'':'display:none;'}margin-top:5px"></div>
       </div>`;
@@ -358,7 +357,7 @@ function valsFor(r){
   const th=teamObj(r.home)||{}, ta=teamObj(r.away)||{};
   let ymd=''; if(r.date){const d=new Date(r.date+'T00:00:00'); if(!isNaN(d)) ymd=''+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');}
   return {
-    'HOME_TEAM':(r.alt2&&th.alt?th.alt:r.home),'AWAY_TEAM':(r.alt2&&ta.alt?ta.alt:r.away),
+    'HOME_TEAM':r.home,'AWAY_TEAM':r.away,
     'HOME_STADIUM':(r.use2?(th.euro||th.normal):th.normal)||'','AWAY_STADIUM':(ta.normal||''),
     'HOME_CITY':th.city||'','AWAY_CITY':ta.city||'',
     'HOME_COUNTRY':th.country||'','AWAY_COUNTRY':ta.country||'',
