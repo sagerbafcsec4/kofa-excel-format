@@ -276,7 +276,7 @@ function fmtDate(v){ if(!v) return ''; const d=new Date(v+'T00:00:00'); if(isNaN
 function fillCommon(){ /* シーズン・大会名・第●節は手打ち入力 */ }
 
 function tplOptions(sel){ const NUM=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩']; let h='<option value="">自動（1つ目のテンプレ）</option>'; templates.forEach((t,i)=>{h+=`<option value="${i}" ${String(sel)===String(i)?'selected':''}>${NUM[i]||(i+1)+'.'}${esc(t.name)}</option>`;}); return h; }
-function fnRowOptions(sel){ let o='<option value="">（既定の書式）</option>'; fnPresets().forEach(p=>{o+=`<option value="${esc(p)}" ${p===sel?'selected':''}>${esc(p)}</option>`;}); o+=`<option value="__custom__" ${sel==='__custom__'?'selected':''}>✏ カスタム…</option>`; return o; }
+function fnRowOptions(sel){ let o='<option value="">（既定の書式）</option>'; fnPresets().forEach(p=>{o+=`<option value="${esc(p.value)}" ${p.value===sel?'selected':''}>${esc(p.label)}</option>`;}); o+=`<option value="__custom__" ${sel==='__custom__'?'selected':''}>✏ カスタム…</option>`; return o; }
 function renderTemplates(){
   const ul=el('tpl-list'); ul.innerHTML='';
   templates.forEach((t,i)=>{ const li=document.createElement('li'); li.innerHTML=`<span>📄 ${esc(t.name)}</span><span class="del" data-tpl="${i}">削除</span>`; ul.appendChild(li); });
@@ -395,13 +395,14 @@ function renderVerify(files){
   h+=files.map(f=>{ const v=f.verify||{ok:true}; return '<div class="vrow '+(v.ok?'ok':'warn')+'">'+(v.ok?'✓':'⚠')+' '+esc(f.nm)+(v.ok?'':' — 固定部分に想定外の差分（'+esc(v.where)+' 付近: '+esc(v.near||'')+'）')+'</div>'; }).join('');
   box.innerHTML=h; box.style.display='block';
 }
-const DEFAULT_PRESETS=['【試合記録】{{COMPETITION}}{{MATCHDAY}}_{{HOME_TEAM}}対{{AWAY_TEAM}}','【試合記録】{{HOME_TEAM}}対{{AWAY_TEAM}}'];
-function fnPresets(){ if(!state.fnPresets||!state.fnPresets.length) state.fnPresets=DEFAULT_PRESETS.slice(); return state.fnPresets; }
-function buildPresetOptions(){ const ps=el('fn-preset'); const cur=ps.value; ps.innerHTML='<option value="">オプションから選ぶ…</option>'; fnPresets().forEach(p=>ps.appendChild(opt(p))); ps.value=cur; }
+const DEFAULT_PRESETS=[{label:'標準（対戦のみ）',value:'【試合記録】{{HOME_TEAM}}対{{AWAY_TEAM}}'},{label:'フル（大会名込み）',value:'【試合記録】{{COMPETITION}}{{MATCHDAY}}_{{HOME_TEAM}}対{{AWAY_TEAM}}'}];
+function fnPresets(){ if(!Array.isArray(state.fnPresets)||!state.fnPresets.length||typeof state.fnPresets[0]!=='object'){ state.fnPresets=DEFAULT_PRESETS.slice(); } return state.fnPresets; }
+function buildPresetOptions(){ const ps=el('fn-preset'); ps.innerHTML='<option value="">オプションから選ぶ…</option>'; fnPresets().forEach(p=>ps.appendChild(opt(p.value,p.label))); syncPresetSelect(); }
+function syncPresetSelect(){ const ps=el('fn-preset'); if(!ps) return; const cur=(el('fn-pattern')||{}).value||''; const m=fnPresets().find(p=>p.value===cur); ps.value=m?m.value:''; }
 function safeName(s){return (s||'').replace(/[\\/:*?"<>|]/g,'').slice(0,120);}
 function applyPattern(pat,vals){ pat=pat.replace(/\{\{\s*([^}]+?)\s*\}\}/g,(m,k)=> (k.trim() in vals)? vals[k.trim()] : m); return pat.replace(/\{\s*([^{}]+?)\s*\}/g,(m,k)=> (k.trim() in vals)? vals[k.trim()] : m); }
-function fileNameFor(r){ let pat=(r.fnSel==='__custom__')?(r.fnText||''):(r.fnSel||''); if(!pat) pat=el('fn-pattern').value||fnPresets()[0]; let n=safeName(applyPattern(pat,valsFor(r))); if(!n) n='match'; return n+'.xlsx'; }
-function initFilename(){ buildPresetOptions(); el('fn-pattern').value=state.fnPattern||fnPresets()[0]; el('fn-preset').onchange=()=>{ const v=el('fn-preset').value; if(v){ el('fn-pattern').value=v; state.fnPattern=v; save(); } }; el('fn-pattern').oninput=()=>{ state.fnPattern=el('fn-pattern').value; save(); }; }
+function fileNameFor(r){ let pat=(r.fnSel==='__custom__')?(r.fnText||''):(r.fnSel||''); if(!pat) pat=el('fn-pattern').value||fnPresets()[0].value; let n=safeName(applyPattern(pat,valsFor(r))); if(!n) n='match'; return n+'.xlsx'; }
+function initFilename(){ buildPresetOptions(); el('fn-pattern').value=state.fnPattern||fnPresets()[0].value; el('fn-preset').onchange=()=>{ const v=el('fn-preset').value; if(v){ el('fn-pattern').value=v; state.fnPattern=v; save(); } }; el('fn-pattern').oninput=()=>{ state.fnPattern=el('fn-pattern').value; save(); syncPresetSelect(); }; syncPresetSelect(); }
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
 const XLSX_MIME='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 async function buildAll(){
