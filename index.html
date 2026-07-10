@@ -292,7 +292,7 @@ function renderRows(){
         <div class="mteam"><input type="text" data-i="${i}" data-k="home" value="${esc(r.home)}" placeholder="ホームチーム"></div>
         <div class="vs">対</div>
         <div class="mteam"><input type="text" data-i="${i}" data-k="away" value="${esc(r.away)}" placeholder="アウェイチーム"></div>
-        <div class="mbtns"><button class="rowbtn dup" data-dup="${i}" title="この対戦を複製">複製</button><button class="rowbtn swp" data-swp="${i}" title="ホーム・アウェイを逆にした行を追加">HA逆</button><button class="rowbtn x" data-del="${i}" title="削除">✕</button></div>
+        <div class="mbtns"><button class="rowbtn dup" data-dup="${i}" title="この対戦を複製">複製</button><button class="rowbtn x" data-del="${i}" title="削除">✕</button></div>
       </div>
       <div class="mbot">
         <div class="mfield"><span>開催日</span><input type="date" data-i="${i}" data-k="date" value="${esc(r.date)}"></div>
@@ -314,7 +314,6 @@ el('match-list').addEventListener('input',e=>{
 el('match-list').addEventListener('click',e=>{ const d=e.target.dataset;
   if(d.del!=null){ rows.splice(+d.del,1); if(!rows.length) addRow(); else renderRows(); }
   else if(d.dup!=null){ const i=+d.dup; rows.splice(i+1,0,Object.assign({},rows[i])); renderRows(); }
-  else if(d.swp!=null){ const i=+d.swp; const r=rows[i]; rows.splice(i+1,0,Object.assign({},r,{home:r.away,away:r.home})); renderRows(); }
 });
 el('add-row').onclick=()=>addRow();
 el('clear-rows').onclick=()=>{ if(confirm('対戦リストを全て消去しますか？')){ rows=[]; addRow(); } };
