@@ -153,7 +153,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
       <h2><span class="step">4</span>対戦リスト（何試合でも）</h2>
       <div class="tbl-scroll"><div id="match-list" class="matchlist"></div></div>
       <div class="rowbtns">
-        <button class="btn primary" id="add-row">＋ 行を追加</button>
+        <button class="btn primary" id="add-row">＋ 対戦を追加</button>
         <button class="btn" id="clear-rows">クリア</button>
       </div>
       <details>
@@ -456,7 +456,7 @@ function toast(m){const t=el('toast');t.textContent=m;t.classList.add('show');cl
 
 function renderAll(){
   fillCommon(); sortTeams('country',true); renderTeamTable(); renderTemplates(); initFilename();
-  if(!rows.length){ addRow({home:'ドルトムント',away:'ベンフィカ'}); } else { renderRows(); }
+  if(!rows.length){ addRow(); } else { renderRows(); }
 }
 renderAll();
 loadSheet();
