@@ -136,7 +136,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
       <h2><span class="step">2</span>共通設定</h2>
       <div class="grid">
         <div class="field"><label>シーズン</label><input type="text" id="c-season" placeholder="25/26 など"></div>
-        <div class="field"><label>大会名</label><input type="text" id="c-comp" placeholder="UEFAチャンピオンズリーグ など"></div>
+        <div class="field"><label>大会名</label><input type="text" id="c-comp" placeholder="プレミアリーグ / ラ・リーガ など"></div>
         <div class="field"><label>第●節</label><input type="text" id="c-md" placeholder="第●節 / MD● / 準々決勝1stleg"></div>
       </div>
     </div>
@@ -191,7 +191,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
       <h2>差し込みプレースホルダ（テンプレートのセル用・二重カッコ）</h2>
       <table style="margin-top:6px"><tbody>
         <tr><td><span class="ph">{{HOME_TEAM}}</span></td><td>ホームチーム名</td><td><span class="ph">{{AWAY_TEAM}}</span></td><td>アウェイチーム名</td></tr>
-        <tr><td><span class="ph">{{HOME_STADIUM}}</span></td><td>ホームのスタジアム（行で②チェック→②）</td><td><span class="ph">{{AWAY_STADIUM}}</span></td><td>アウェイのスタジアム①</td></tr>
+        <tr><td><span class="ph">{{HOME_STADIUM}}</span></td><td>ホームのスタジアム①</td><td><span class="ph">{{AWAY_STADIUM}}</span></td><td>アウェイのスタジアム①</td></tr>
         <tr><td><span class="ph">{{HOME_CITY}}</span></td><td>ホームの都市</td><td><span class="ph">{{AWAY_CITY}}</span></td><td>アウェイの都市</td></tr>
         <tr><td><span class="ph">{{HOME_COUNTRY}}</span></td><td>ホームの国</td><td><span class="ph">{{AWAY_COUNTRY}}</span></td><td>アウェイの国</td></tr>
         <tr><td><span class="ph">{{COMPETITION}}</span></td><td>大会名（例：プレミアリーグ／ラ・リーガ／UEFAチャンピオンズリーグ）</td><td><span class="ph">{{SEASON}}</span></td><td>シーズン（例：26/27／2026/27／2026-2027）</td></tr>
@@ -297,14 +297,13 @@ function renderRows(){
       <div class="mbot">
         <div class="mfield"><span>開催日</span><input type="date" data-i="${i}" data-k="date" value="${esc(r.date)}"></div>
         <div class="mfield"><span>KO</span><input type="time" data-i="${i}" data-k="ko" value="${esc(r.ko)}"></div>
-        <div class="mfield chk"><input type="checkbox" id="u2-${i}" data-i="${i}" data-k="use2" ${r.use2?'checked':''}><label for="u2-${i}">スタジアム②を使う</label></div>
         ${tplField}
         <div class="mfield grow"><span>ファイル名</span><select data-i="${i}" data-k="fnSel" class="rowfn">${fnRowOptions(r.fnSel||'')}</select><input data-i="${i}" data-k="fnText" class="rowfntext" placeholder="この行だけの名前" value="${esc(r.fnText||'')}" style="${(r.fnSel==='__custom__')?'':'display:none;'}margin-top:5px"></div>
       </div>`;
     wrap.appendChild(card);
   });
 }
-function addRow(data){ rows.push(Object.assign({date:'',ko:'21:00',home:'',away:'',use2:false,alt2:false,tpl:'',fnSel:'',fnText:''}, data||{})); renderRows(); }
+function addRow(data){ rows.push(Object.assign({date:'',ko:'21:00',home:'',away:'',alt2:false,tpl:'',fnSel:'',fnText:''}, data||{})); renderRows(); }
 
 el('match-list').addEventListener('input',e=>{
   const i=e.target.dataset.i,k=e.target.dataset.k; if(i==null)return;
@@ -355,7 +354,7 @@ function valsFor(r){
   let ymd=''; if(r.date){const d=new Date(r.date+'T00:00:00'); if(!isNaN(d)) ymd=''+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');}
   return {
     'HOME_TEAM':r.home,'AWAY_TEAM':r.away,
-    'HOME_STADIUM':(r.use2?(th.euro||th.normal):th.normal)||'','AWAY_STADIUM':(ta.normal||''),
+    'HOME_STADIUM':(th.normal||''),'AWAY_STADIUM':(ta.normal||''),
     'HOME_CITY':th.city||'','AWAY_CITY':ta.city||'',
     'HOME_COUNTRY':th.country||'','AWAY_COUNTRY':ta.country||'',
     'COMPETITION':comp,'SEASON':season,'MATCHDAY':md,
