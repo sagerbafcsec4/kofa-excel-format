@@ -463,3 +463,19 @@ loadSheet();
 </script>
 </body>
 </html>
+
+<style>
+/* 対戦リスト：ホーム／アウェイに枠外ラベル＋レイアウト調整 */
+.mtop{display:flex;flex-wrap:nowrap;align-items:flex-end;gap:10px}
+.mtop > div.mteam{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:3px}
+.mtop > div.mteam::before{font-size:12px;font-weight:700;color:#475569;line-height:1.4}
+.mtop > div:nth-of-type(2).mteam::before{content:"ホームチーム"}
+.mtop > div:nth-of-type(4).mteam::before{content:"アウェイチーム"}
+.mtop > div.mteam input{width:100%}
+.mtop > div.vs{padding-bottom:9px;font-weight:700;color:#64748b;flex:0 0 auto}
+.mtop > div.mnum{align-self:flex-end;margin-bottom:6px}
+.mtop > div.mbtns{align-self:flex-end;display:flex;gap:8px;padding-bottom:2px}
+.mbot{display:flex;gap:12px;margin-top:10px}
+.mbot .mfield{flex:1 1 0;min-width:0}
+.mbot .mfield input{width:100%}
+</style>
