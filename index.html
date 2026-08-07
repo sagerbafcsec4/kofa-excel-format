@@ -276,7 +276,7 @@ function fmtDate(v){ if(!v) return ''; const d=new Date(v+'T00:00:00'); if(isNaN
 function fillCommon(){ /* シーズン・大会名・第●節は手打ち入力 */ }
 
 function tplOptions(sel){ const NUM=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩']; let h='<option value="">自動（1つ目のテンプレ）</option>'; templates.forEach((t,i)=>{h+=`<option value="${i}" ${String(sel)===String(i)?'selected':''}>${NUM[i]||(i+1)+'.'}${esc(t.name)}</option>`;}); return h; }
-function fnRowOptions(sel){ let o='<option value="">（既定の書式）</option>'; fnPresets().forEach(p=>{o+=`<option value="${esc(p.value)}" ${p.value===sel?'selected':''}>${esc(p.label)}</option>`;}); o+=`<option value="__custom__" ${sel==='__custom__'?'selected':''}>✏ カスタム…</option>`; return o; }
+
 function renderTemplates(){
   const ul=el('tpl-list'); ul.innerHTML='';
   templates.forEach((t,i)=>{ const li=document.createElement('li'); li.innerHTML=`<span>📄 ${esc(t.name)}</span><span class="del" data-tpl="${i}">削除</span>`; ul.appendChild(li); });
@@ -298,7 +298,7 @@ function renderRows(){
         <div class="mfield"><span>開催日</span><input type="date" data-i="${i}" data-k="date" value="${esc(r.date)}"></div>
         <div class="mfield"><span>KO</span><input type="time" data-i="${i}" data-k="ko" value="${esc(r.ko)}"></div>
         ${tplField}
-        <div class="mfield grow"><span>ファイル名</span><select data-i="${i}" data-k="fnSel" class="rowfn">${fnRowOptions(r.fnSel||'')}</select><input data-i="${i}" data-k="fnText" class="rowfntext" placeholder="この行だけの名前" value="${esc(r.fnText||'')}" style="${(r.fnSel==='__custom__')?'':'display:none;'}margin-top:5px"></div>
+        
       </div>`;
     wrap.appendChild(card);
   });
@@ -415,6 +415,7 @@ async function buildAll(){
     out.push({nm,buf:res.buf,verify:res.verify}); }
   renderVerify(out);
   return out;
+  ps.appendChild(opt('','✏ カスタム…'));
 }
 async function saveToFolder(){
   const btn=el('dl-folder'), old=btn.textContent;
