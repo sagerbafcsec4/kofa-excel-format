@@ -2,14 +2,22 @@
 
 Excelテンプレート（.xlsx）に `{{プレースホルダ}}` を置いておくと、対戦カードの情報を
 差し込んで複数のExcelを一括出力するWebアプリ。
-公開URL: https://sagerbafcsec4.github.io/kofa-excel-format/
+
+- **本番公開URL（Cloudflare Pages・2026-08-19〜）**: https://kofa-excel-format.pages.dev/
+- 旧公開URL（GitHub Pages・放置中／リンク切れ防止のためアクセスは可能）: https://sagerbafcsec4.github.io/kofa-excel-format/
 
 すべてブラウザ内で処理し、ファイルは外部送信されません。
 
 ## 修正する人へ（重要）
 
 - **画面とロジックは `index.html` の中に全部入っています**（唯一の正本）。
-- 修正は **`index.html` を直して、このリポジトリにコミットするだけ**。数十秒で公開ページに反映。
+- 修正は **`index.html` を直して、このリポジトリにコミット・push**（GitHub Pagesは自動反映されるが、旧URLなので実質不要）。
+- **本番のCloudflare Pagesは自動反映されない**（GitHub連携ではなく手動アップロードのため。他のkofaアプリと同じ方式）。反映するには以下を実行:
+  ```bash
+  # index.html / manifest.webmanifest / sw.js / icon-*.png を専用フォルダにコピーしてから
+  npx wrangler pages deploy <そのフォルダ> --project-name=kofa-excel-format
+  ```
+  初回のみ `npx wrangler login` でログインが必要（このマシンでは既にログイン済み）。
 - PWA（オフライン対応）なので更新後に古い表示が残ることがあります → **Ctrl+F5**（スマホは再読み込み）。
 - 別デバイス・別のClaude/Coworkでも、**まずこの README と `index.html` を読めば把握できます。**
 
