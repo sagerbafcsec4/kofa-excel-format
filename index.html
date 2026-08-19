@@ -63,7 +63,8 @@ select:focus,input:focus,textarea:focus{outline:none;border-color:var(--g1);box-
 .mtop{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .mnum{flex:none;width:26px;height:26px;border-radius:50%;background:var(--grad);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
 .mteam{flex:1;min-width:0}
-.mteam input{width:100%;font-weight:700}
+.mteam input,.mteam select{width:100%;font-weight:700}
+.mteam select:disabled{color:#94a3b8;font-weight:600;background:#f4f7f5}
 .vs{flex:none;color:#94a3b8;font-weight:800}
 .mbtns{flex:none;display:flex;gap:4px}
 .mbot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:flex-end}
@@ -135,10 +136,19 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
     <div class="card">
       <h2><span class="step">2</span>共通設定</h2>
       <div class="grid">
-        <div class="field"><label>シーズン</label><input type="text" id="c-season" placeholder="25/26 など"></div>
-        <div class="field"><label>大会名</label><input type="text" id="c-comp" placeholder="プレミアリーグ / ラ・リーガ など"></div>
+        <div class="field">
+          <label>シーズン</label>
+          <select id="c-season-select"></select>
+          <input type="text" id="c-season-custom" placeholder="例: 28/29" style="display:none;margin-top:6px">
+        </div>
+        <div class="field">
+          <label>大会名</label>
+          <select id="c-comp-select"></select>
+          <input type="text" id="c-comp-custom" placeholder="大会名を入力" style="display:none;margin-top:6px">
+        </div>
         <div class="field"><label>第●節</label><input type="text" id="c-md" placeholder="第●節 / MD● / 準々決勝1stleg"></div>
       </div>
+      <p class="hint">大会名を選ぶと、下の対戦リストのホーム/アウェイ欄がそのリーグの登録チームだけに絞られます。チームの所属リーグは「チーム一覧」タブの共有シートで設定してください。「カスタム」を選んだ場合はチーム名を自由入力できます。</p>
     </div>
 
     <div class="card">
@@ -156,6 +166,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
         <button class="btn primary" id="add-row">＋ 対戦を追加</button>
         <button class="btn" id="clear-rows">クリア</button>
       </div>
+      <p class="hint">ホーム/アウェイは共通設定の大会名で絞られたチームからプルダウンで選びます（大会名「カスタム」のときは自由入力）。</p>
       <details>
         <summary>まとめて貼り付けて追加（1行に1試合）</summary>
         <p class="hint">「ホーム ［タブ/カンマ］ アウェイ ［タブ/カンマ］ 開催日(任意) ［タブ/カンマ］ KO(任意)」を1行に1試合で。</p>
@@ -172,11 +183,11 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
   <div class="page" id="page-db">
     <div class="card">
       <h2>チーム一覧（共有シート）</h2>
-      <p class="hint">この一覧は共有スプレッドシートから読み込まれます（閲覧専用）。対戦リストで入力したチーム名がここの「チーム名」と一致すると、スタジアム・都市・国が自動で入ります。チームの追加・修正は管理者がスプレッドシートで行ってください。</p>
-      <div class="rowbtns" style="margin-bottom:18px"><a class="btn primary" href="https://docs.google.com/spreadsheets/d/1USqNCDdUBc2hJfv4Vw5JuORWfUF6kitjEasfvelm6MQ/edit?gid=0#gid=0" target="_blank" rel="noopener" style="white-space:nowrap">共有シートを開いて編集</a><input type="text" id="team-search" placeholder="🔍 チーム名・国・都市・スタジアムで検索" style="flex:1;min-width:220px"></div>
+      <p class="hint">この一覧は共有スプレッドシートから読み込まれます（閲覧専用）。対戦リストで入力したチーム名がここの「チーム名」と一致すると、スタジアム・都市・国が自動で入ります。チームの追加・修正は管理者がスプレッドシートで行ってください。<br>「所属リーグ」列に <span class="ph">プレミアリーグ</span> <span class="ph">ラ・リーガ</span> <span class="ph">エールディヴィジ</span> のいずれかを書くと、共通設定で大会名を選んだときに対戦リストのチーム欄がそのリーグだけに絞られます。空欄のチームは「カスタム」大会でのみ選べます。</p>
+      <div class="rowbtns" style="margin-bottom:18px"><a class="btn primary" href="https://docs.google.com/spreadsheets/d/1USqNCDdUBc2hJfv4Vw5JuORWfUF6kitjEasfvelm6MQ/edit?gid=0#gid=0" target="_blank" rel="noopener" style="white-space:nowrap">共有シートを開いて編集</a><input type="text" id="team-search" placeholder="🔍 チーム名・リーグ・国・都市・スタジアムで検索" style="flex:1;min-width:220px"></div>
       <div class="tbl-scroll">
         <table id="team-table">
-          <thead><tr><th data-sort="name" style="width:15%;cursor:pointer">チーム名 <span id="ar-name"></span></th><th style="width:15%">別表記</th><th data-sort="country" style="width:10%;cursor:pointer">国 <span id="ar-country"></span></th><th style="width:11%">都市</th><th style="width:24.5%">ホームスタジアム①</th><th style="width:24.5%">ホームスタジアム②</th></tr></thead>
+          <thead><tr><th data-sort="name" style="width:13%;cursor:pointer">チーム名 <span id="ar-name"></span></th><th data-sort="league" style="width:12%;cursor:pointer">所属リーグ <span id="ar-league"></span></th><th style="width:11%">別表記</th><th data-sort="country" style="width:9%;cursor:pointer">国 <span id="ar-country"></span></th><th style="width:9%">都市</th><th style="width:23%">ホームスタジアム①</th><th style="width:23%">ホームスタジアム②</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -205,7 +216,9 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
 <div class="toast" id="toast"></div>
 
 <script>
-const DEFAULT_DATA = {"seasons": ["24/25", "25/26", "26/27", "27/28"], "competitions": [{"name": "UEFAチャンピオンズリーグ", "type": "欧州カップ戦"}, {"name": "UEFAヨーロッパリーグ", "type": "欧州カップ戦"}, {"name": "UEFAヨーロッパカンファレンスリーグ", "type": "欧州カップ戦"}, {"name": "プレミアリーグ", "type": "国内リーグ"}, {"name": "ラ・リーガ", "type": "国内リーグ"}, {"name": "ブンデスリーガ", "type": "国内リーグ"}, {"name": "セリエA", "type": "国内リーグ"}, {"name": "リーグ・アン", "type": "国内リーグ"}], "matchdays": ["MD1", "MD2", "MD3", "MD4", "MD5", "MD6", "MD7", "MD8", "決勝Tプレーオフ 1stleg", "決勝Tプレーオフ 2ndleg", "ベスト16 1stleg", "ベスト16 2ndleg", "準々決勝 1stleg", "準々決勝 2ndleg", "準決勝 1stleg", "準決勝 2ndleg", "決勝", "第1節", "第2節", "第3節", "第4節", "第5節", "第6節", "第7節", "第8節", "第9節", "第10節", "第11節", "第12節", "第13節", "第14節", "第15節", "第16節", "第17節", "第18節", "第19節", "第20節", "第21節", "第22節", "第23節", "第24節", "第25節", "第26節", "第27節", "第28節", "第29節", "第30節", "第31節", "第32節", "第33節", "第34節", "第35節", "第36節", "第37節", "第38節"], "teams": [{"comp": "", "name": "アーセナル", "country": "イングランド", "city": "ロンドン", "normal": "アーセナル・スタジアム", "euro": ""}, {"comp": "", "name": "チェルシー", "country": "イングランド", "city": "ロンドン", "normal": "スタンフォード・ブリッジ", "euro": ""}, {"comp": "", "name": "トッテナム・ホットスパー", "country": "イングランド", "city": "ロンドン", "normal": "トッテナム・ホットスパー・スタジアム", "euro": ""}, {"comp": "", "name": "ニューカッスル", "country": "イングランド", "city": "ニューカッスル", "normal": "セント・ジェームズ・パーク", "euro": ""}, {"comp": "", "name": "マンチェスター・シティ", "country": "イングランド", "city": "マンチェスター", "normal": "シティ・オブ・マンチェスター・スタジアム", "euro": ""}, {"comp": "", "name": "リヴァプール", "country": "イングランド", "city": "リヴァプール", "normal": "アンフィールド", "euro": ""}, {"comp": "", "name": "アトレティコ・マドリード", "country": "スペイン", "city": "マドリード", "normal": "エスタディオ・メトロポリターノ", "euro": ""}, {"comp": "", "name": "アトレティック・クルブ", "country": "スペイン", "city": "ビルバオ", "normal": "サン・マメス", "euro": "エスタディオ・サン・マメス"}, {"comp": "", "name": "バルセロナ", "country": "スペイン", "city": "バルセロナ", "normal": "カンプ・ノウ", "euro": ""}, {"comp": "", "name": "ビジャレアル", "country": "スペイン", "city": "ビジャレアル", "normal": "エスタディオ・デ･ラ･セラミカ", "euro": ""}, {"comp": "", "name": "レアル・マドリード", "country": "スペイン", "city": "マドリード", "normal": "サンティアゴ・ベルナベウ", "euro": "エスタディオ・サンティアゴ・ベルナベウ"}, {"comp": "", "name": "ドルトムント", "country": "ドイツ", "city": "ドルトムント", "normal": "シュタディオン・ドルトムント", "euro": "BVBシュタディオン・ドルトムント"}, {"comp": "", "name": "バイエルン", "country": "ドイツ", "city": "ミュンヘン", "normal": "フースバル・アレーナ・ミュンヘン", "euro": ""}, {"comp": "", "name": "フランクフルト", "country": "ドイツ", "city": "フランクフルト・アム・マイン", "normal": "フランクフルト・シュタディオン", "euro": ""}, {"comp": "", "name": "レヴァークーゼン", "country": "ドイツ", "city": "レヴァークーゼン", "normal": "バイアレーナ", "euro": ""}, {"comp": "", "name": "アタランタ", "country": "イタリア", "city": "ベルガモ", "normal": "スタディオ・ディ・ベルガモ", "euro": ""}, {"comp": "", "name": "インテル", "country": "イタリア", "city": "ミラノ", "normal": "サン・シーロ", "euro": "スタディオ・サン・シーロ"}, {"comp": "", "name": "ナポリ", "country": "イタリア", "city": "ナポリ", "normal": "スタディオ・ディエゴ・アルマンド・マラドーナ", "euro": ""}, {"comp": "", "name": "ユヴェントス", "country": "イタリア", "city": "トリノ", "normal": "ユヴェントス・スタジアム", "euro": ""}, {"comp": "", "name": "パリ・サンジェルマン", "country": "フランス", "city": "パリ", "normal": "パルク・デ・プランス", "euro": ""}, {"comp": "", "name": "マルセイユ", "country": "フランス", "city": "マルセイユ", "normal": "スタッド・ドゥ・マルセイユ", "euro": ""}, {"comp": "", "name": "PSV", "country": "オランダ", "city": "アイントホーフェン", "normal": "PSVスタディオン", "euro": ""}, {"comp": "", "name": "アヤックス", "country": "オランダ", "city": "アムステルダム", "normal": "ヨハン・クライフ・アレーナ", "euro": ""}, {"comp": "", "name": "スポルティングCP", "country": "ポルトガル", "city": "リスボン", "normal": "エスタディオ・ジョゼ・アルヴァラーデ", "euro": ""}, {"comp": "", "name": "ベンフィカ", "country": "ポルトガル", "city": "リスボン", "normal": "エスタディオ・ド・ベンフィカ", "euro": ""}, {"comp": "", "name": "クルブ・ブルッヘ", "country": "ベルギー", "city": "ブルッヘ", "normal": "ヤン・ブレイデル・スタディオン", "euro": ""}, {"comp": "", "name": "ユニオン・サン＝ジロワーズ", "country": "ベルギー", "city": "ブリュッセル", "normal": "アンデルレヒト・スタジアム", "euro": ""}, {"comp": "", "name": "ガラタサライ", "country": "トルコ", "city": "イスタンブール", "normal": "アリ・サミ・イェン", "euro": "アリ・サミ・イェン・スポール・コンプレスキ"}, {"comp": "", "name": "オリンピアコス", "country": "ギリシャ", "city": "ピレウス", "normal": "スタディオ・ヨルギオス・カライスカキス", "euro": ""}, {"comp": "", "name": "コペンハーゲン", "country": "デンマーク", "city": "コペンハーゲン", "normal": "パルケン", "euro": ""}, {"comp": "", "name": "ボードー/グリムト", "country": "ノルウェー", "city": "ボードー", "normal": "アスプミラ・スタディオン", "euro": ""}, {"comp": "", "name": "スラヴィア・プラハ", "country": "チェコ", "city": "プラハ", "normal": "エデン・アレーナ", "euro": ""}, {"comp": "", "name": "カラバフ", "country": "アゼルバイジャン", "city": "バクー", "normal": "トフィク・バフラモフ・レピュブリカン・スタジアム", "euro": ""}, {"comp": "", "name": "カイラト・アルマトイ", "country": "カザフスタン", "city": "アルマトイ", "normal": "アルマトイ・オルタリク・スタディオン", "euro": ""}, {"comp": "", "name": "パフォス", "country": "キプロス", "city": "リマソル", "normal": "リマソル・スタジアム", "euro": ""}]};
+const DEFAULT_DATA = {"seasons": ["24/25", "25/26", "26/27", "27/28"], "competitions": [{"name": "UEFAチャンピオンズリーグ", "type": "欧州カップ戦"}, {"name": "UEFAヨーロッパリーグ", "type": "欧州カップ戦"}, {"name": "UEFAヨーロッパカンファレンスリーグ", "type": "欧州カップ戦"}, {"name": "プレミアリーグ", "type": "国内リーグ"}, {"name": "ラ・リーガ", "type": "国内リーグ"}, {"name": "ブンデスリーガ", "type": "国内リーグ"}, {"name": "セリエA", "type": "国内リーグ"}, {"name": "リーグ・アン", "type": "国内リーグ"}], "matchdays": ["MD1", "MD2", "MD3", "MD4", "MD5", "MD6", "MD7", "MD8", "決勝Tプレーオフ 1stleg", "決勝Tプレーオフ 2ndleg", "ベスト16 1stleg", "ベスト16 2ndleg", "準々決勝 1stleg", "準々決勝 2ndleg", "準決勝 1stleg", "準決勝 2ndleg", "決勝", "第1節", "第2節", "第3節", "第4節", "第5節", "第6節", "第7節", "第8節", "第9節", "第10節", "第11節", "第12節", "第13節", "第14節", "第15節", "第16節", "第17節", "第18節", "第19節", "第20節", "第21節", "第22節", "第23節", "第24節", "第25節", "第26節", "第27節", "第28節", "第29節", "第30節", "第31節", "第32節", "第33節", "第34節", "第35節", "第36節", "第37節", "第38節"], "teams": [{"name": "アーセナル", "country": "イングランド", "city": "ロンドン", "normal": "アーセナル・スタジアム", "euro": "", "league": "プレミアリーグ"}, {"name": "チェルシー", "country": "イングランド", "city": "ロンドン", "normal": "スタンフォード・ブリッジ", "euro": "", "league": "プレミアリーグ"}, {"name": "トッテナム・ホットスパー", "country": "イングランド", "city": "ロンドン", "normal": "トッテナム・ホットスパー・スタジアム", "euro": "", "league": "プレミアリーグ"}, {"name": "ニューカッスル", "country": "イングランド", "city": "ニューカッスル", "normal": "セント・ジェームズ・パーク", "euro": "", "league": "プレミアリーグ"}, {"name": "マンチェスター・シティ", "country": "イングランド", "city": "マンチェスター", "normal": "シティ・オブ・マンチェスター・スタジアム", "euro": "", "league": "プレミアリーグ"}, {"name": "リヴァプール", "country": "イングランド", "city": "リヴァプール", "normal": "アンフィールド", "euro": "", "league": "プレミアリーグ"}, {"name": "アトレティコ・マドリード", "country": "スペイン", "city": "マドリード", "normal": "エスタディオ・メトロポリターノ", "euro": "", "league": "ラ・リーガ"}, {"name": "アトレティック・クルブ", "country": "スペイン", "city": "ビルバオ", "normal": "サン・マメス", "euro": "エスタディオ・サン・マメス", "league": "ラ・リーガ"}, {"name": "バルセロナ", "country": "スペイン", "city": "バルセロナ", "normal": "カンプ・ノウ", "euro": "", "league": "ラ・リーガ"}, {"name": "ビジャレアル", "country": "スペイン", "city": "ビジャレアル", "normal": "エスタディオ・デ･ラ･セラミカ", "euro": "", "league": "ラ・リーガ"}, {"name": "レアル・マドリード", "country": "スペイン", "city": "マドリード", "normal": "サンティアゴ・ベルナベウ", "euro": "エスタディオ・サンティアゴ・ベルナベウ", "league": "ラ・リーガ"}, {"name": "ドルトムント", "country": "ドイツ", "city": "ドルトムント", "normal": "シュタディオン・ドルトムント", "euro": "BVBシュタディオン・ドルトムント", "league": ""}, {"name": "バイエルン", "country": "ドイツ", "city": "ミュンヘン", "normal": "フースバル・アレーナ・ミュンヘン", "euro": "", "league": ""}, {"name": "フランクフルト", "country": "ドイツ", "city": "フランクフルト・アム・マイン", "normal": "フランクフルト・シュタディオン", "euro": "", "league": ""}, {"name": "レヴァークーゼン", "country": "ドイツ", "city": "レヴァークーゼン", "normal": "バイアレーナ", "euro": "", "league": ""}, {"name": "アタランタ", "country": "イタリア", "city": "ベルガモ", "normal": "スタディオ・ディ・ベルガモ", "euro": "", "league": ""}, {"name": "インテル", "country": "イタリア", "city": "ミラノ", "normal": "サン・シーロ", "euro": "スタディオ・サン・シーロ", "league": ""}, {"name": "ナポリ", "country": "イタリア", "city": "ナポリ", "normal": "スタディオ・ディエゴ・アルマンド・マラドーナ", "euro": "", "league": ""}, {"name": "ユヴェントス", "country": "イタリア", "city": "トリノ", "normal": "ユヴェントス・スタジアム", "euro": "", "league": ""}, {"name": "パリ・サンジェルマン", "country": "フランス", "city": "パリ", "normal": "パルク・デ・プランス", "euro": "", "league": ""}, {"name": "マルセイユ", "country": "フランス", "city": "マルセイユ", "normal": "スタッド・ドゥ・マルセイユ", "euro": "", "league": ""}, {"name": "PSV", "country": "オランダ", "city": "アイントホーフェン", "normal": "PSVスタディオン", "euro": "", "league": "エールディヴィジ"}, {"name": "アヤックス", "country": "オランダ", "city": "アムステルダム", "normal": "ヨハン・クライフ・アレーナ", "euro": "", "league": "エールディヴィジ"}, {"name": "スポルティングCP", "country": "ポルトガル", "city": "リスボン", "normal": "エスタディオ・ジョゼ・アルヴァラーデ", "euro": "", "league": ""}, {"name": "ベンフィカ", "country": "ポルトガル", "city": "リスボン", "normal": "エスタディオ・ド・ベンフィカ", "euro": "", "league": ""}, {"name": "クルブ・ブルッヘ", "country": "ベルギー", "city": "ブルッヘ", "normal": "ヤン・ブレイデル・スタディオン", "euro": "", "league": ""}, {"name": "ユニオン・サン＝ジロワーズ", "country": "ベルギー", "city": "ブリュッセル", "normal": "アンデルレヒト・スタジアム", "euro": "", "league": ""}, {"name": "ガラタサライ", "country": "トルコ", "city": "イスタンブール", "normal": "アリ・サミ・イェン", "euro": "アリ・サミ・イェン・スポール・コンプレスキ", "league": ""}, {"name": "オリンピアコス", "country": "ギリシャ", "city": "ピレウス", "normal": "スタディオ・ヨルギオス・カライスカキス", "euro": "", "league": ""}, {"name": "コペンハーゲン", "country": "デンマーク", "city": "コペンハーゲン", "normal": "パルケン", "euro": "", "league": ""}, {"name": "ボードー/グリムト", "country": "ノルウェー", "city": "ボードー", "normal": "アスプミラ・スタディオン", "euro": "", "league": ""}, {"name": "スラヴィア・プラハ", "country": "チェコ", "city": "プラハ", "normal": "エデン・アレーナ", "euro": "", "league": ""}, {"name": "カラバフ", "country": "アゼルバイジャン", "city": "バクー", "normal": "トフィク・バフラモフ・レピュブリカン・スタジアム", "euro": "", "league": ""}, {"name": "カイラト・アルマトイ", "country": "カザフスタン", "city": "アルマトイ", "normal": "アルマトイ・オルタリク・スタディオン", "euro": "", "league": ""}, {"name": "パフォス", "country": "キプロス", "city": "リマソル", "normal": "リマソル・スタジアム", "euro": "", "league": ""}]};
+const LEAGUE_OPTIONS = ["プレミアリーグ", "ラ・リーガ", "エールディヴィジ"];
+const CUSTOM_VAL = "__custom__";
 const SAMPLE_B64 = "";
 const WD = ['日','月','火','水','木','金','土'];
 const LS = 'matchrecord_v1';
@@ -239,16 +252,16 @@ async function loadSheet(){
     if(hasHeader){
       const H=rows[0].map(h=>(h||'').trim());
       const find=(...keys)=>{ for(let i=0;i<H.length;i++){ if(keys.some(k=>H[i].includes(k))) return i; } return -1; };
-      idx={ name:find('チーム名','name'), alt:find('別表記','別名'), country:find('国'), city:find('都市'), normal:find('①','スタジアム1','スタジアム①'), euro:find('②','スタジアム2','スタジアム②') };
+      idx={ name:find('チーム名','name'), alt:find('別表記','別名'), league:find('所属リーグ','リーグ','league'), country:find('国'), city:find('都市'), normal:find('①','スタジアム1','スタジアム①'), euro:find('②','スタジアム2','スタジアム②') };
       if(idx.name<0) idx.name=0;
     } else {
-      idx={ name:0, country:1, city:2, normal:3, euro:4, alt:5 };
+      idx={ name:0, country:1, city:2, normal:3, euro:4, alt:5, league:-1 };
     }
     const g=(r,k)=> (idx[k]>=0 ? (r[idx[k]]||'') : '').trim();
     const s = hasHeader?1:0;
     const list=[];
     for(let k=s;k<rows.length;k++){const r=rows[k];const name=g(r,'name');if(!name)continue;
-      list.push({name,alt:g(r,'alt'),country:g(r,'country'),city:g(r,'city'),normal:g(r,'normal'),euro:g(r,'euro')});}
+      list.push({name,alt:g(r,'alt'),league:g(r,'league'),country:g(r,'country'),city:g(r,'city'),normal:g(r,'normal'),euro:g(r,'euro')});}
     if(!list.length) return;
     state.teams = list; save(); sortTeams('country',true); renderTeamTable(); renderRows();
     toast(list.length+'チームを共有シートから読み込みました');
@@ -273,13 +286,57 @@ function esc(s){return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 function stadFor(t){ return (t&&t.normal)||''; }
 function fmtDate(v){ if(!v) return ''; const d=new Date(v+'T00:00:00'); if(isNaN(d)) return ''; const mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0'); return d.getFullYear()+'年'+mm+'月'+dd+'日('+WD[d.getDay()]+')'; }
 
-function fillCommon(){ /* シーズン・大会名・第●節は手打ち入力 */ }
+function initCommonSelects(){
+  const compSel=el('c-comp-select');
+  compSel.innerHTML = '<option value="">選択してください</option>'
+    + LEAGUE_OPTIONS.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')
+    + `<option value="${CUSTOM_VAL}">カスタム…</option>`;
+  compSel.onchange=()=>{
+    const isCustom=compSel.value===CUSTOM_VAL;
+    const cust=el('c-comp-custom'); cust.style.display=isCustom?'':'none'; if(isCustom) cust.focus();
+    renderRows();
+  };
+  el('c-comp-custom').oninput=()=>{}; // 値はgetCompValue()経由で毎回読むので保存不要
+
+  const seasonSel=el('c-season-select');
+  const seasons=(state.seasons&&state.seasons.length)?state.seasons:['24/25','25/26','26/27','27/28'];
+  seasonSel.innerHTML = seasons.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('')
+    + `<option value="${CUSTOM_VAL}">その他…</option>`;
+  seasonSel.onchange=()=>{
+    const isCustom=seasonSel.value===CUSTOM_VAL;
+    const cust=el('c-season-custom'); cust.style.display=isCustom?'':'none'; if(isCustom) cust.focus();
+  };
+}
+function isCompCustom(){ const s=el('c-comp-select'); return !!s && s.value===CUSTOM_VAL; }
+function getCompValue(){ const s=el('c-comp-select'); if(!s) return ''; return s.value===CUSTOM_VAL ? (el('c-comp-custom').value||'').trim() : s.value; }
+function getSeasonValue(){ const s=el('c-season-select'); if(!s) return ''; return s.value===CUSTOM_VAL ? (el('c-season-custom').value||'').trim() : s.value; }
+function teamsForLeague(league){ return state.teams.filter(t=>(t.league||'').trim()===league); }
 
 function tplOptions(sel){ const NUM=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩']; let h='<option value="">自動（1つ目のテンプレ）</option>'; templates.forEach((t,i)=>{h+=`<option value="${i}" ${String(sel)===String(i)?'selected':''}>${NUM[i]||(i+1)+'.'}${esc(t.name)}</option>`;}); return h; }
 
 function renderTemplates(){
   const ul=el('tpl-list'); ul.innerHTML='';
   templates.forEach((t,i)=>{ const li=document.createElement('li'); li.innerHTML=`<span>📄 ${esc(t.name)}</span><span class="del" data-tpl="${i}">削除</span>`; ul.appendChild(li); });
+}
+function teamFieldHTML(i,k,value){
+  const ph = k==='home' ? 'ホームチーム' : 'アウェイチーム';
+  if(isCompCustom()){
+    return `<input type="text" data-i="${i}" data-k="${k}" value="${esc(value)}" placeholder="${ph}">`;
+  }
+  const comp=getCompValue();
+  if(!comp){
+    return `<select data-i="${i}" data-k="${k}" disabled><option value="">先に大会名を選んでください</option></select>`;
+  }
+  const pool=teamsForLeague(comp);
+  let h=`<select data-i="${i}" data-k="${k}">`;
+  h+=`<option value="">${ph}を選択</option>`;
+  if(!pool.length){ h+=`<option value="" disabled>（このリーグの登録チームがありません。チーム一覧タブでご確認ください）</option>`; }
+  pool.forEach(t=>{ h+=`<option value="${esc(t.name)}" ${t.name===value?'selected':''}>${esc(t.name)}</option>`; });
+  if(value && !pool.some(t=>t.name===value)){
+    h+=`<option value="${esc(value)}" selected>${esc(value)}（現在の大会に未登録）</option>`;
+  }
+  h+='</select>';
+  return h;
 }
 function renderRows(){
   const wrap=el('match-list'); wrap.innerHTML='';
@@ -289,9 +346,9 @@ function renderRows(){
     card.innerHTML=`
       <div class="mtop">
         <div class="mnum">${i+1}</div>
-        <div class="mteam"><input type="text" data-i="${i}" data-k="home" value="${esc(r.home)}" placeholder="ホームチーム"></div>
+        <div class="mteam">${teamFieldHTML(i,'home',r.home)}</div>
         <div class="vs">対</div>
-        <div class="mteam"><input type="text" data-i="${i}" data-k="away" value="${esc(r.away)}" placeholder="アウェイチーム"></div>
+        <div class="mteam">${teamFieldHTML(i,'away',r.away)}</div>
         <div class="mbtns"><button class="rowbtn dup" data-dup="${i}" title="この対戦を複製">複製</button><button class="rowbtn x" data-del="${i}" title="削除">✕</button></div>
       </div>
       <div class="mbot">
@@ -316,10 +373,25 @@ el('match-list').addEventListener('click',e=>{ const d=e.target.dataset;
 });
 el('add-row').onclick=()=>addRow();
 el('clear-rows').onclick=()=>{ if(confirm('対戦リストを全て消去しますか？')){ rows=[]; addRow(); } };
+function matchTeamName(name,pool){ if(!name||!pool) return null; const n=name.trim(); return pool.find(t=>t.name===n||(t.alt&&t.alt===n))||null; }
 el('paste-add').onclick=()=>{
   const txt=el('paste-box').value.trim(); if(!txt) return; let n=0;
-  txt.split(/\r?\n/).forEach(line=>{ const p=line.split(/[\t,]/).map(s=>s.trim()); if(!p[0]) return; addRow({home:p[0]||'',away:p[1]||'',date:p[2]||'',ko:p[3]||'21:00'}); n++; });
-  el('paste-box').value=''; toast(n+'試合を追加しました');
+  const custom=isCompCustom(); const pool=custom?null:teamsForLeague(getCompValue());
+  const unmatched=[];
+  txt.split(/\r?\n/).forEach(line=>{
+    const p=line.split(/[\t,]/).map(s=>s.trim()); if(!p[0]) return;
+    let home=p[0]||'', away=p[1]||'';
+    if(!custom){
+      const hM=matchTeamName(home,pool), aM=matchTeamName(away,pool);
+      if(home && !hM) unmatched.push(home);
+      if(away && !aM) unmatched.push(away);
+      home = hM?hM.name:''; away = aM?aM.name:'';
+    }
+    addRow({home,away,date:p[2]||'',ko:p[3]||'21:00'}); n++;
+  });
+  el('paste-box').value='';
+  toast(n+'試合を追加しました'+(unmatched.length?'（うち '+unmatched.length+'件は現在の大会のチームと不一致のため空欄）':''));
+  if(unmatched.length) alert('次のチーム名は「'+(getCompValue()||'（未選択）')+'」の登録チームと一致しませんでした。対戦リストで手動選択してください:\n\n'+[...new Set(unmatched)].join('\n'));
 };
 
 // ---- templates upload ----
@@ -335,11 +407,11 @@ el('drop').addEventListener('drop',e=>{e.preventDefault(); addFiles(e.dataTransf
 
 // ---- DB tables ----
 function fitFont(inp){ let f=14; inp.style.fontSize=f+"px"; let g=0; while(inp.scrollWidth>inp.clientWidth+1 && f>9 && g<8){ f--; g++; inp.style.fontSize=f+"px"; } }
-function updateSortArrows(){ const n=el('ar-name'),c=el('ar-country'); if(n)n.textContent=teamSort.key==='name'?(teamSort.asc?'▲':'▼'):''; if(c)c.textContent=teamSort.key==='country'?(teamSort.asc?'▲':'▼'):''; }
+function updateSortArrows(){ const n=el('ar-name'),c=el('ar-country'),l=el('ar-league'); if(n)n.textContent=teamSort.key==='name'?(teamSort.asc?'▲':'▼'):''; if(c)c.textContent=teamSort.key==='country'?(teamSort.asc?'▲':'▼'):''; if(l)l.textContent=teamSort.key==='league'?(teamSort.asc?'▲':'▼'):''; }
 function parseCSV(x){x=String(x).replace(/\r\n/g,'\n').replace(/\r/g,'\n');const rows=[];let f='',row=[],q=false;for(let i=0;i<x.length;i++){const c=x[i];if(q){if(c==='"'){if(x[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}else{if(c==='"')q=true;else if(c===',' ){row.push(f);f='';}else if(c==='\n'){row.push(f);rows.push(row);row=[];f='';}else f+=c;}}if(f!==''||row.length){row.push(f);rows.push(row);}return rows;}
 function importCSV(txt){const rows=parseCSV(txt).filter(r=>r.some(c=>(c||'').trim()!==''));let s=0;if(rows.length&&/チーム名|name/i.test(rows[0].join(',')))s=1;let n=0;for(let k=s;k<rows.length;k++){const r=rows[k];const name=(r[0]||'').trim();if(!name)continue;state.teams.push({name,country:(r[1]||'').trim(),city:(r[2]||'').trim(),normal:(r[3]||'').trim(),euro:(r[4]||'').trim()});n++;}if(n){save();sortTeams('country',true);renderTeamTable();}toast(n+'件を追加しました');}
 function dlCsvTemplate(){const csv='\ufeffチーム名,国,都市,ホームスタジアム①,ホームスタジアム②\nドルトムント,ドイツ,ドルトムント,シュタディオン・ドルトムント,BVBシュタディオン・ドルトムント\n';dl(new Blob([csv],{type:'text/csv'}),'teams_template.csv');}
-function renderTeamTable(){ updateSortArrows(); const q=(el('team-search').value||'').toLowerCase(); const tb=el('team-table').querySelector('tbody'); tb.innerHTML=''; state.teams.forEach((t,i)=>{ if(q && ![t.name,t.alt,t.country,t.city,t.normal,t.euro].some(v=>(v||'').toLowerCase().includes(q))) return; const tr=document.createElement('tr'); tr.innerHTML=`<td>${esc(t.name)}</td><td>${esc(t.alt)}</td><td>${esc(t.country)}</td><td>${esc(t.city)}</td><td>${esc(t.normal)}</td><td>${esc(t.euro)}</td>`; tb.appendChild(tr); }); }
+function renderTeamTable(){ updateSortArrows(); const q=(el('team-search').value||'').toLowerCase(); const tb=el('team-table').querySelector('tbody'); tb.innerHTML=''; state.teams.forEach((t,i)=>{ if(q && ![t.name,t.alt,t.league,t.country,t.city,t.normal,t.euro].some(v=>(v||'').toLowerCase().includes(q))) return; const tr=document.createElement('tr'); tr.innerHTML=`<td>${esc(t.name)}</td><td>${esc(t.league)}</td><td>${esc(t.alt)}</td><td>${esc(t.country)}</td><td>${esc(t.city)}</td><td>${esc(t.normal)}</td><td>${esc(t.euro)}</td>`; tb.appendChild(tr); }); }
 el('team-table').addEventListener('input',e=>{const i=e.target.dataset.i,k=e.target.dataset.k; if(i!=null){state.teams[i][k]=e.target.value; save(); fitFont(e.target);}});
 el('team-table').addEventListener('click',e=>{ const th=e.target.closest('th[data-sort]'); if(th){ const k=th.dataset.sort; teamSort.asc=(teamSort.key===k)?!teamSort.asc:true; teamSort.key=k; sortTeams(k,teamSort.asc); save(); renderTeamTable(); return; } if(e.target.dataset.del!=null){state.teams.splice(+e.target.dataset.del,1); save(); renderTeamTable(); renderRows();} });
 el('team-search').addEventListener('input',renderTeamTable);
@@ -347,8 +419,8 @@ el('team-search').addEventListener('input',renderTeamTable);
 // ---- generate ----
 function safe(s){return (s||'').replace(/[\\/:*?"<>|]/g,'').slice(0,40);}
 function valsFor(r){
-  const comp=el('c-comp').value;
-  const season=el('c-season').value;
+  const comp=getCompValue();
+  const season=getSeasonValue();
   const md=el('c-md').value;
   const th=teamObj(r.home)||{}, ta=teamObj(r.away)||{};
   let ymd=''; if(r.date){const d=new Date(r.date+'T00:00:00'); if(!isNaN(d)) ymd=''+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');}
@@ -455,7 +527,7 @@ let toastT;
 function toast(m){const t=el('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
 
 function renderAll(){
-  fillCommon(); sortTeams('country',true); renderTeamTable(); renderTemplates(); initFilename();
+  initCommonSelects(); sortTeams('country',true); renderTeamTable(); renderTemplates(); initFilename();
   if(!rows.length){ addRow(); } else { renderRows(); }
 }
 renderAll();
@@ -471,7 +543,7 @@ loadSheet();
 .mtop > div.mteam::before{font-size:12px;font-weight:700;color:#475569;line-height:1.4}
 .mtop > div:nth-of-type(2).mteam::before{content:"ホームチーム"}
 .mtop > div:nth-of-type(4).mteam::before{content:"アウェイチーム"}
-.mtop > div.mteam input{width:100%}
+.mtop > div.mteam input,.mtop > div.mteam select{width:100%}
 .mtop > div.vs{padding-bottom:9px;font-weight:700;color:#64748b;flex:0 0 auto}
 .mtop > div.mnum{align-self:flex-end;margin-bottom:6px}
 .mtop > div.mbtns{align-self:flex-end;display:flex;gap:8px;padding-bottom:2px}
