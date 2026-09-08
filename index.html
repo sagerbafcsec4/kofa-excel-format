@@ -45,7 +45,8 @@ select:focus,input:focus,textarea:focus{outline:none;border-color:var(--g1);box-
 .dlrow .dlbtn{margin-top:0;flex:1}
 .dlbtn.alt{background:#fff;color:#217346;border:2px solid #217346;box-shadow:none}
 .dlbtn.alt:hover{background:#f0f8f3;box-shadow:none}
-.verify-log{margin-top:14px;font-size:13px}
+.verify-head{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:14px;font-weight:800;color:var(--ink)}
+.verify-log{margin-top:10px;font-size:13px}
 .verify-log .vsum{font-weight:800;padding:9px 12px;border-radius:10px;margin-bottom:8px}
 .verify-log .vsum.ok{background:#e3f4ea;color:#1e7e45}
 .verify-log .vsum.warn{background:#fdecea;color:#c0392b}
@@ -85,6 +86,7 @@ td input,td select{padding:7px;font-size:13px;border:1px solid #e6ebf1;border-ra
 #team-table tbody tr:hover{background:#eef5f1}
 .tbl-scroll{max-height:470px;overflow:auto;border:1px solid var(--line);border-radius:12px}
 .btn{padding:9px 15px;border:1px solid var(--line);background:#fff;color:#334155;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px;transition:.15s}
+.btn.sm{padding:5px 12px;font-size:12px;border-radius:8px}
 .btn:hover{border-color:#bfe0cd;color:var(--g1)}
 .btn.primary{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 7px 16px -8px rgba(33,115,70,.7)}
 .btn.primary:hover{color:#fff;transform:translateY(-1px)}
@@ -160,11 +162,10 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
     </div>
 
     <div class="card">
-      <h2><span class="step">4</span>対戦リスト（何試合でも）</h2>
+      <h2><span class="step">4</span>対戦リスト（何試合でも）<button class="btn sm" id="clear-rows" style="margin-left:auto" title="対戦リストを空にします。上の共通設定は残ります">クリア</button></h2>
       <div class="tbl-scroll"><div id="match-list" class="matchlist"></div></div>
       <div class="rowbtns">
         <button class="btn primary" id="add-row">＋ 対戦を追加</button>
-        <button class="btn" id="clear-rows">クリア</button>
       </div>
       <p class="hint">ホーム/アウェイは共通設定の大会名で絞られたチームからプルダウンで選びます（大会名「カスタム」のときは自由入力）。</p>
       <details>
@@ -176,6 +177,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
     </div>
 
     <div class="dlrow"><button class="dlbtn" id="dl-folder">フォルダを選んで個別に保存</button><button class="dlbtn alt" id="dl-zip">ZIPにまとめて保存</button></div>
+    <div class="verify-head">出力結果<button class="btn sm" id="clear-verify" style="margin-left:auto" title="出力結果の表示だけを消します。上の設定と対戦リストは残ります">クリア</button></div>
     <div id="verify-log" class="verify-log" style="display:none"></div>
   </div>
 
@@ -385,6 +387,7 @@ el('match-list').addEventListener('click',e=>{ const d=e.target.dataset;
 });
 el('add-row').onclick=()=>addRow();
 el('clear-rows').onclick=()=>{ if(confirm('対戦リストを全て消去しますか？')){ rows=[]; addRow(); } };
+el('clear-verify').onclick=()=>{ const b=el('verify-log'); if(b){ b.innerHTML=''; b.style.display='none'; } };
 function matchTeamName(name,pool){ if(!name||!pool) return null; const n=name.trim(); return pool.find(t=>t.name===n||(t.alt&&t.alt===n))||null; }
 el('paste-add').onclick=()=>{
   const txt=el('paste-box').value.trim(); if(!txt) return; let n=0;
