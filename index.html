@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Excelフォーマット自動作成</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMyMTczNDYiLz48dGV4dCB4PSIzMiIgeT0iNDciIGZvbnQtZmFtaWx5PSJBcmlhbCxIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkU8L3RleHQ+PC9zdmc+">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%2230%22%20height%3D%2230%22%20rx%3D%228%22%20fill%3D%22%23217346%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M10%206.5h8.5l4.5%204.5v14.5H10z%22/%3E%3Cpath%20d%3D%22M18.5%206.5V11H23%22/%3E%3C/g%3E%3Ctext%20x%3D%2216.5%22%20y%3D%2222.5%22%20font-family%3D%22Arial%2Csans-serif%22%20font-weight%3D%22700%22%20font-size%3D%229%22%20fill%3D%22%23fff%22%20text-anchor%3D%22middle%22%3EE%3C/text%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Inter:wght@400;500;600;700;800&family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
 <style>
@@ -112,11 +112,12 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
 </head>
 <body>
 <div class="topbar">
-  <div class="logo">E</div>
+  <div class="logo"><svg aria-hidden="true" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="30" height="30" rx="8" fill="#217346"/><g fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6.5h8.5l4.5 4.5v14.5H10z"/><path d="M18.5 6.5V11H23"/></g><text x="16.5" y="22.5" font-family="Arial,sans-serif" font-weight="700" font-size="9" fill="#fff" text-anchor="middle">E</text></svg></div>
   <div>
     <h1>Excelフォーマット自動作成</h1>
     <p>Excelテンプレートに {{プレースホルダ}} を置くだけ。対戦を入れれば、何試合でも一括で差し込み出力できます。</p>
   </div>
+  <a class="backlink" href="https://kofa-portal.pages.dev/">← ポータルへ</a>
 </div>
 <div class="tabs">
   <div class="tab active" data-page="make">フォーマット作成</div>
@@ -565,4 +566,33 @@ loadSheet();
 .mbot{display:flex;gap:12px;margin-top:10px}
 .mbot .mfield{flex:1 1 0;min-width:0}
 .mbot .mfield input{width:100%}
+
+  /* ===== kofa シリーズ共通 v1（2026-10-01・5サイト共通の見た目の決まり） ===== */
+  /* 道具の色(--tool)は「上の帯・アイコン・番号の丸・主ボタン/選択中タブ」だけ。文字は 22/16/14/13、角の丸みは 8/12/丸 */
+  .backlink{ margin-left:auto; align-self:center; flex:0 0 auto; font-size:13px; color:#475569; text-decoration:none; background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:5px 12px; white-space:nowrap; }
+  .backlink:hover{ color:#0f172a; border-color:#cbd5e1; }
+  details.more{ margin-top:10px; font-size:13px; color:#475569; }
+  details.more summary{ cursor:pointer; color:#475569; }
+  details.more p{ margin:6px 0 0; line-height:1.7; }
+
+  :root{ --tool:#217346; --line:#e2e8f0; --bg:#f8fafc; }
+  body{ background:var(--bg); }
+  body::before{ content:""; position:fixed; left:0; right:0; top:0; height:4px; background:var(--tool); z-index:50; }
+  .logo{ background:none; box-shadow:none; border-radius:12px; padding:0; overflow:hidden; }
+  .logo svg{ width:100%; height:100%; display:block; }
+  .topbar h1{ font-size:22px; } .topbar p{ font-size:14px; }
+  .card{ border-radius:12px; box-shadow:none; } .card h2{ font-size:16px; }
+  .step,.mnum{ background:var(--tool); box-shadow:none; border-radius:50%; }
+  .tab{ font-size:14px; } .tab.active{ background:var(--tool); box-shadow:none; }
+  .dlbtn{ background:var(--tool); box-shadow:none; border-radius:8px; font-size:16px; } .dlbtn:hover{ transform:none; box-shadow:none; background:#1b5f3a; }
+  .dlbtn.alt{ background:#fff; border-width:1px; } .dlbtn.alt:hover{ background:#f0f8f3; }
+  .dlbtn:disabled{ background:#d6dfda; color:#3f4d45; }
+  label,.mfield>span,.badge,.rowbtn,th,td,.hint{ font-size:13px; }
+  select,input[type=text],input[type=date],input[type=time],textarea,.rowbtn,.mcard input:not([type=checkbox]),.mcard select,.verify-log .vsum{ border-radius:8px; }
+  .mcard{ border-radius:12px; background:#fff; }
+  .mfield>span,.rowbtn{ color:#475569; }
+  #clear-rows,#paste-add,#clear-verify,.rowbtn{ font-size:13px; color:#475569; } .vs{ font-size:14px; }
+  #add-row{ border-radius:8px; } #drop,.upload{ border-radius:12px; }
+  .btn.primary{ background:var(--tool); box-shadow:none; color:#fff; } .btn.primary:hover{ transform:none; box-shadow:none; filter:none; background:#1b5f3a; }
+  .upload{ background:#fff; border:2px dashed #cbd5e1; color:#475569; } .upload:hover{ border-color:var(--tool); background:#f0f8f3; }
 </style>
