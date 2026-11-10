@@ -141,7 +141,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
         <tr><td><span class="ph">{{HOME_CITY}}</span></td><td>ホームの都市</td><td><span class="ph">{{AWAY_CITY}}</span></td><td>アウェイの都市</td></tr>
         <tr><td><span class="ph">{{HOME_COUNTRY}}</span></td><td>ホームの国</td><td><span class="ph">{{AWAY_COUNTRY}}</span></td><td>アウェイの国</td></tr>
         <tr><td><span class="ph">{{COMPETITION}}</span></td><td>大会名</td><td><span class="ph">{{SEASON}}</span></td><td>シーズン（例：26/27）</td></tr>
-        <tr><td><span class="ph">{{MATCHDAY}}</span></td><td>節・ラウンド（例：第●節／MD●）</td><td><span class="ph">{{KICKOFF}}</span></td><td>キックオフ時刻（例：21:00）</td></tr>
+        <tr><td><span class="ph">{{MATCHDAY}}</span></td><td>節（例：第5節）</td><td><span class="ph">{{KICKOFF}}</span></td><td>キックオフ時刻（例：21:00）</td></tr>
         <tr><td><span class="ph">{{DATE}}</span></td><td>開催日（2025年09月16日(火)）</td><td><span class="ph">{{DATE8}}</span></td><td>開催日8桁（20250916）</td></tr>
       </tbody></table>
       <p class="hint">1つのセルに {{HOME_STADIUM}}（{{HOME_CITY}}）のように並べてもOK。ファイル名の自由入力にも同じ記号が使えます（.xlsx は自動で付きます）。</p>
@@ -168,7 +168,7 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
           <select id="c-comp-select"></select>
           <input type="text" id="c-comp-custom" placeholder="大会名を入力" style="display:none;margin-top:6px">
         </div>
-        <div class="field"><label>第●節</label><input type="text" id="c-md" placeholder="第●節 / MD● / 準々決勝1stleg"></div>
+        <div class="field"><label>節</label><div class="mdrow">第<input type="text" id="c-md" inputmode="numeric" value="5" aria-label="節の数字">節</div></div>
       </div>
     </div>
 
@@ -441,7 +441,9 @@ function safe(s){return (s||'').replace(/[\\/:*?"<>|]/g,'').slice(0,40);}
 function valsFor(r){
   const comp=getCompValue();
   const season=getSeasonValue();
-  const md=el('c-md').value;
+  // 節の欄は数字だけを入れる。「第」「節」はここで付ける（空欄なら何も入れない）
+  const mdNum=(el('c-md').value||'').trim();
+  const md=mdNum ? '第'+mdNum+'節' : '';
   const th=teamObj(r.home)||{}, ta=teamObj(r.away)||{};
   let ymd=''; if(r.date){const d=new Date(r.date+'T00:00:00'); if(!isNaN(d)) ymd=''+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');}
   return {
@@ -580,6 +582,9 @@ loadSheet();
 .mrow > .mbtns{display:flex;gap:6px;padding-bottom:3px}
 .mcard{padding:10px 12px}
 .matchlist{gap:8px}
+/* 節：「第 [数字] 節」の形（数字だけ打ち替える） */
+.mdrow{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:#0f172a}
+.mdrow input#c-md{width:5em;text-align:center}
 /* ファイル名：選択肢1つ＋自由入力のときだけ入力欄 */
 .fnrow{display:flex;flex-wrap:wrap;gap:10px}
 .fnrow select{flex:0 1 auto;width:auto;max-width:100%}
