@@ -122,12 +122,31 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
 <div class="tabs">
   <div class="tab active" data-page="make">フォーマット作成</div>
   <div class="tab" data-page="db">チーム一覧</div>
-  <div class="tab" data-page="help">プレースホルダ</div>
 </div>
 
 <div class="wrap">
   <!-- ===== MAKE ===== -->
   <div class="page active" id="page-make">
+    <details class="howtobox">
+      <summary><span class="qi">?</span>使い方（手順・差し込み記号）<span class="arr">▶</span></summary>
+      <ul class="howto">
+        <li><b>①</b> 元にするExcel（.xlsx）のセルに、下の差し込み記号を書いておく</li>
+        <li><b>②</b> そのExcelをここに読み込む（複数可。2つ以上なら対戦ごとに使い分けられる）</li>
+        <li><b>③</b> 共通設定と対戦を入れる。<b>大会名を先に選ぶ</b>と、チーム欄がそのリーグのチームだけに絞られる（「カスタム」なら自由入力）</li>
+        <li><b>④</b> 「▶ 実行」→ ZIP・フォルダ保存・1ファイルずつ、のどれかで保存。書式・結合セル・複数シートはそのまま</li>
+      </ul>
+      <table class="phtable"><tbody>
+        <tr><td><span class="ph">{{HOME_TEAM}}</span></td><td>ホームチーム名</td><td><span class="ph">{{AWAY_TEAM}}</span></td><td>アウェイチーム名</td></tr>
+        <tr><td><span class="ph">{{HOME_STADIUM}}</span></td><td>ホームのスタジアム①</td><td><span class="ph">{{AWAY_STADIUM}}</span></td><td>アウェイのスタジアム①</td></tr>
+        <tr><td><span class="ph">{{HOME_CITY}}</span></td><td>ホームの都市</td><td><span class="ph">{{AWAY_CITY}}</span></td><td>アウェイの都市</td></tr>
+        <tr><td><span class="ph">{{HOME_COUNTRY}}</span></td><td>ホームの国</td><td><span class="ph">{{AWAY_COUNTRY}}</span></td><td>アウェイの国</td></tr>
+        <tr><td><span class="ph">{{COMPETITION}}</span></td><td>大会名</td><td><span class="ph">{{SEASON}}</span></td><td>シーズン（例：26/27）</td></tr>
+        <tr><td><span class="ph">{{MATCHDAY}}</span></td><td>節・ラウンド（例：第●節／MD●）</td><td><span class="ph">{{KICKOFF}}</span></td><td>キックオフ時刻（例：21:00）</td></tr>
+        <tr><td><span class="ph">{{DATE}}</span></td><td>開催日（2025年09月16日(火)）</td><td><span class="ph">{{DATE8}}</span></td><td>開催日8桁（20250916）</td></tr>
+      </tbody></table>
+      <p class="hint">1つのセルに {{HOME_STADIUM}}（{{HOME_CITY}}）のように並べてもOK。ファイル名の自由入力にも同じ記号が使えます（.xlsx は自動で付きます）。</p>
+    </details>
+
     <div class="card">
       <h2><span class="step">1</span>フォーマットベースを読み込む（.xlsx・複数可）</h2>
       <label class="upload" id="drop">ここに .xlsx をドラッグ＆ドロップ、またはクリックして選択
@@ -151,14 +170,13 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
         </div>
         <div class="field"><label>第●節</label><input type="text" id="c-md" placeholder="第●節 / MD● / 準々決勝1stleg"></div>
       </div>
-      <p class="hint">大会名を選ぶと、下の対戦リストのホーム/アウェイ欄がそのリーグの登録チームだけに絞られます。チームの所属リーグは「チーム一覧」タブの共有シートで設定してください。「カスタム」を選んだ場合はチーム名を自由入力できます。</p>
     </div>
 
     <div class="card">
-      <h2><span class="step">3</span>ファイル名（共通）</h2>
-      <div class="grid">
-        <div class="field"><label>オプションから選ぶ</label><select id="fn-preset"></select></div>
-        <div class="field" style="grid-column:2/4"><label>ファイル名</label><input type="text" id="fn-pattern"></div>
+      <h2><span class="step">3</span>ファイル名</h2>
+      <div class="fnrow">
+        <select id="fn-preset"></select>
+        <input type="text" id="fn-pattern" style="display:none" placeholder="例：【試合記録】{{HOME_TEAM}}対{{AWAY_TEAM}}">
       </div>
     </div>
 
@@ -168,7 +186,6 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
       <div class="rowbtns">
         <button class="btn primary" id="add-row">＋ 対戦を追加</button>
       </div>
-      <p class="hint">ホーム/アウェイは共通設定の大会名で絞られたチームからプルダウンで選びます（大会名「カスタム」のときは自由入力）。</p>
       <details>
         <summary>まとめて貼り付けて追加（1行に1試合）</summary>
         <p class="hint">「ホーム ［タブ/カンマ］ アウェイ ［タブ/カンマ］ 開催日(任意) ［タブ/カンマ］ KO(任意)」を1行に1試合で。</p>
@@ -177,16 +194,25 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
       </details>
     </div>
 
-    <div class="dlrow"><button class="dlbtn" id="dl-folder">フォルダを選んで個別に保存</button><button class="dlbtn alt" id="dl-zip">ZIPにまとめて保存</button></div>
-    <div class="verify-head">出力結果<button class="btn sm" id="clear-verify" style="margin-left:auto" title="出力結果の表示だけを消します。上の設定と対戦リストは残ります">クリア</button></div>
-    <div id="verify-log" class="verify-log" style="display:none"></div>
+    <div class="card">
+      <h2><span class="step">5</span>実行</h2>
+      <button class="dlbtn runbtn" id="run">▶ 実行</button>
+    </div>
+
+    <div class="card">
+      <h2><span class="step">6</span>結果（ダウンロード）<button class="btn sm" id="clear-verify" style="margin-left:auto" title="結果の表示だけを消します。上の設定と対戦リストは残ります">クリア</button></h2>
+      <p class="empty" id="result-empty">「▶ 実行」を押すと、ここに保存ボタンが出ます。</p>
+      <div id="zip"></div>
+      <div id="dl" class="dl"></div>
+      <div id="verify-log" class="verify-log" style="display:none"></div>
+    </div>
   </div>
 
   <!-- ===== DB ===== -->
   <div class="page" id="page-db">
     <div class="card">
       <h2>チーム一覧（共有シート）</h2>
-      <p class="hint">この一覧は共有スプレッドシートから読み込まれます（閲覧専用）。対戦リストで入力したチーム名がここの「チーム名」と一致すると、スタジアム・都市・国が自動で入ります。チームの追加・修正は管理者がスプレッドシートで行ってください。<br>「所属リーグ」列に <span class="ph">プレミアリーグ</span> <span class="ph">ラ・リーガ</span> <span class="ph">エールディヴィジ</span> のいずれかを書くと、共通設定で大会名を選んだときに対戦リストのチーム欄がそのリーグだけに絞られます。空欄のチームは「カスタム」大会でのみ選べます。</p>
+      <p class="hint">共有シートの内容です（ここでは見るだけ。直すときはシートで）。スタジアム・都市・国はここから自動で入ります。<br>「所属リーグ」列に書いたリーグで、対戦リストのチーム欄が絞られます（空欄のチームは「カスタム」大会でだけ選べます）。</p>
       <div class="rowbtns" style="margin-bottom:18px"><a class="btn primary" href="https://docs.google.com/spreadsheets/d/1USqNCDdUBc2hJfv4Vw5JuORWfUF6kitjEasfvelm6MQ/edit?gid=0#gid=0" target="_blank" rel="noopener" style="white-space:nowrap">共有シートを開いて編集</a><input type="text" id="team-search" placeholder="🔍 チーム名・リーグ・国・都市・スタジアムで検索" style="flex:1;min-width:220px"></div>
       <div class="tbl-scroll">
         <table id="team-table">
@@ -194,25 +220,6 @@ details{margin-top:14px}summary{cursor:pointer;font-size:13px;font-weight:700;co
           <tbody></tbody>
         </table>
       </div>
-    </div>
-  </div>
-  <div class="page" id="page-help">
-    <div class="card">
-      <h2>使い方</h2>
-      <p class="hint">1) フォーマットベース(.xlsx)のセルに下のプレースホルダを書く → 2) このアプリに読み込む → 3) 共通設定と対戦リストを入力 → 4) まとめてダウンロード。書式・結合セル・複数シートはそのまま保持されます。</p>
-    </div>
-    <div class="card">
-      <h2>差し込みプレースホルダ（テンプレートのセル用・二重カッコ）</h2>
-      <table style="margin-top:6px"><tbody>
-        <tr><td><span class="ph">{{HOME_TEAM}}</span></td><td>ホームチーム名</td><td><span class="ph">{{AWAY_TEAM}}</span></td><td>アウェイチーム名</td></tr>
-        <tr><td><span class="ph">{{HOME_STADIUM}}</span></td><td>ホームのスタジアム①</td><td><span class="ph">{{AWAY_STADIUM}}</span></td><td>アウェイのスタジアム①</td></tr>
-        <tr><td><span class="ph">{{HOME_CITY}}</span></td><td>ホームの都市</td><td><span class="ph">{{AWAY_CITY}}</span></td><td>アウェイの都市</td></tr>
-        <tr><td><span class="ph">{{HOME_COUNTRY}}</span></td><td>ホームの国</td><td><span class="ph">{{AWAY_COUNTRY}}</span></td><td>アウェイの国</td></tr>
-        <tr><td><span class="ph">{{COMPETITION}}</span></td><td>大会名（例：プレミアリーグ／ラ・リーガ／UEFAチャンピオンズリーグ）</td><td><span class="ph">{{SEASON}}</span></td><td>シーズン（例：26/27／2026/27／2026-2027）</td></tr>
-        <tr><td><span class="ph">{{MATCHDAY}}</span></td><td>節・ラウンド（例：第●節／MD●／準々決勝1stleg／準決勝2ndleg）</td><td><span class="ph">{{KICKOFF}}</span></td><td>キックオフ時刻（例：21:00／15:30／16:30）</td></tr>
-        <tr><td><span class="ph">{{DATE}}</span></td><td>開催日（2025年09月16日(火)）</td><td><span class="ph">{{DATE8}}</span></td><td>開催日8桁（20250916）</td></tr>
-      </tbody></table>
-      <p class="hint">地名を付けたいときは {{HOME_STADIUM}}（{{HOME_CITY}}）のように1セルに並べてもOKです。③「ファイル名」欄にも同じトークンが使えます（拡張子.xlsxは自動付与）。</p>
     </div>
   </div>
 </div>
@@ -357,20 +364,17 @@ function renderRows(){
   const wrap=el('match-list'); wrap.innerHTML='';
   rows.forEach((r,i)=>{
     const card=document.createElement('div'); card.className='mcard';
-    const tplField = templates.length>1 ? `<div class="mfield"><span>テンプレート</span><select data-i="${i}" data-k="tpl">${tplOptions(r.tpl)}</select></div>` : '';
+    const tplField = templates.length>1 ? `<div class="mfield mtpl"><span>テンプレート</span><select data-i="${i}" data-k="tpl">${tplOptions(r.tpl)}</select></div>` : '';
     card.innerHTML=`
-      <div class="mtop">
+      <div class="mrow">
         <div class="mnum">${i+1}</div>
-        <div class="mteam">${teamFieldHTML(i,'home',r.home)}</div>
+        <div class="mfield mteam"><span>ホームチーム</span>${teamFieldHTML(i,'home',r.home)}</div>
         <div class="vs">対</div>
-        <div class="mteam">${teamFieldHTML(i,'away',r.away)}</div>
-        <div class="mbtns"><button class="rowbtn dup" data-dup="${i}" title="この対戦を複製">複製</button><button class="rowbtn x" data-del="${i}" title="削除">✕</button></div>
-      </div>
-      <div class="mbot">
-        <div class="mfield"><span>開催日</span><input type="date" data-i="${i}" data-k="date" value="${esc(r.date)}"></div>
-        <div class="mfield"><span>KO</span><input type="time" data-i="${i}" data-k="ko" value="${esc(r.ko)}"></div>
+        <div class="mfield mteam"><span>アウェイチーム</span>${teamFieldHTML(i,'away',r.away)}</div>
+        <div class="mfield mdate"><span>開催日</span><input type="date" data-i="${i}" data-k="date" value="${esc(r.date)}"></div>
+        <div class="mfield mko"><span>KO</span><input type="time" data-i="${i}" data-k="ko" value="${esc(r.ko)}"></div>
         ${tplField}
-        
+        <div class="mbtns"><button class="rowbtn dup" data-dup="${i}" title="この対戦を複製">複製</button><button class="rowbtn x" data-del="${i}" title="削除">✕</button></div>
       </div>`;
     wrap.appendChild(card);
   });
@@ -388,7 +392,7 @@ el('match-list').addEventListener('click',e=>{ const d=e.target.dataset;
 });
 el('add-row').onclick=()=>addRow();
 el('clear-rows').onclick=()=>{ if(confirm('対戦リストを全て消去しますか？')){ rows=[]; addRow(); } };
-el('clear-verify').onclick=()=>{ const b=el('verify-log'); if(b){ b.innerHTML=''; b.style.display='none'; } };
+el('clear-verify').onclick=()=>clearResults();
 function matchTeamName(name,pool){ if(!name||!pool) return null; const n=name.trim(); return pool.find(t=>t.name===n||(t.alt&&t.alt===n))||null; }
 el('paste-add').onclick=()=>{
   const txt=el('paste-box').value.trim(); if(!txt) return; let n=0;
@@ -484,12 +488,14 @@ function renderVerify(files){
 }
 const DEFAULT_PRESETS=[{label:'標準（対戦のみ）',value:'【試合記録】{{HOME_TEAM}}対{{AWAY_TEAM}}'},{label:'フル（大会名込み）',value:'【試合記録】{{COMPETITION}}{{MATCHDAY}}_{{HOME_TEAM}}対{{AWAY_TEAM}}'}];
 function fnPresets(){ if(!Array.isArray(state.fnPresets)||!state.fnPresets.length||typeof state.fnPresets[0]!=='object'){ state.fnPresets=DEFAULT_PRESETS.slice(); } return state.fnPresets; }
-function buildPresetOptions(){ const ps=el('fn-preset'); ps.innerHTML='<option value="">オプションから選ぶ…</option>'; fnPresets().forEach(p=>ps.appendChild(opt(p.value,p.label))); syncPresetSelect(); }
-function syncPresetSelect(){ const ps=el('fn-preset'); if(!ps) return; const cur=(el('fn-pattern')||{}).value||''; const m=fnPresets().find(p=>p.value===cur); ps.value=m?m.value:''; }
+const FN_CUSTOM='__fncustom__';
+function buildPresetOptions(){ const ps=el('fn-preset'); ps.innerHTML=''; fnPresets().forEach(p=>ps.appendChild(opt(p.value,p.label+'　'+p.value))); ps.appendChild(opt(FN_CUSTOM,'自由入力…')); syncPresetSelect(); }
+// 今のファイル名が選択肢のどれかと同じならそれを選び、違えば「自由入力」にして入力欄を出す
+function syncPresetSelect(){ const ps=el('fn-preset'); if(!ps) return; const inp=el('fn-pattern'); const cur=(inp||{}).value||''; const m=fnPresets().find(p=>p.value===cur); ps.value=m?m.value:FN_CUSTOM; if(inp) inp.style.display=m?'none':''; }
 function safeName(s){return (s||'').replace(/[\\/:*?"<>|]/g,'').slice(0,120);}
 function applyPattern(pat,vals){ pat=pat.replace(/\{\{\s*([^}]+?)\s*\}\}/g,(m,k)=> (k.trim() in vals)? vals[k.trim()] : m); return pat.replace(/\{\s*([^{}]+?)\s*\}/g,(m,k)=> (k.trim() in vals)? vals[k.trim()] : m); }
 function fileNameFor(r){ let pat=(r.fnSel==='__custom__')?(r.fnText||''):(r.fnSel||''); if(!pat) pat=el('fn-pattern').value||fnPresets()[0].value; let n=safeName(applyPattern(pat,valsFor(r))); if(!n) n='match'; return n+'.xlsx'; }
-function initFilename(){ buildPresetOptions(); el('fn-pattern').value=state.fnPattern||fnPresets()[0].value; el('fn-preset').onchange=()=>{ const v=el('fn-preset').value; if(v){ el('fn-pattern').value=v; state.fnPattern=v; save(); } }; el('fn-pattern').oninput=()=>{ state.fnPattern=el('fn-pattern').value; save(); syncPresetSelect(); }; syncPresetSelect(); }
+function initFilename(){ buildPresetOptions(); el('fn-pattern').value=state.fnPattern||fnPresets()[0].value; el('fn-preset').onchange=()=>{ const v=el('fn-preset').value; const inp=el('fn-pattern'); if(v===FN_CUSTOM){ inp.style.display=''; inp.focus(); return; } inp.value=v; inp.style.display='none'; state.fnPattern=v; save(); }; el('fn-pattern').oninput=()=>{ state.fnPattern=el('fn-pattern').value; save(); }; syncPresetSelect(); }
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
 const XLSX_MIME='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 async function buildAll(){
@@ -505,39 +511,48 @@ async function buildAll(){
   return out;
   ps.appendChild(opt('','✏ カスタム…'));
 }
-async function saveToFolder(){
-  const btn=el('dl-folder'), old=btn.textContent;
-  if(!window.showDirectoryPicker){ toast('このブラウザはフォルダ保存に未対応です。ZIPをご利用ください'); return; }
-  let dir; try{ dir=await window.showDirectoryPicker({mode:'readwrite'}); }catch(e){ return; }
-  btn.disabled=true;
-  try{
-    const files=await buildAll(); if(!files){ btn.disabled=false; btn.textContent=old; return; }
-    for(let i=0;i<files.length;i++){ btn.textContent=`保存中… ${i+1}/${files.length}`;
-      const fh=await dir.getFileHandle(files[i].nm,{create:true}); const w=await fh.createWritable(); await w.write(files[i].buf); await w.close(); }
-    toast(files.length+'件をフォルダに保存しました');
-  }catch(err){console.error(err); toast('エラー: '+err.message);}
-  btn.disabled=false; btn.textContent=old;
-}
 function stamp(){ const d=new Date(), p=n=>String(n).padStart(2,'0'); return ''+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes()); }
-async function saveAsZip(){
-  const btn=el('dl-zip'), old=btn.textContent; btn.disabled=true;
-  try{
-    const files=await buildAll(); if(!files){ btn.disabled=false; btn.textContent=old; return; }
-    if(files.length===1){ dl(new Blob([files[0].buf],{type:XLSX_MIME}), files[0].nm); toast('1件を保存しました'); }
-    else { btn.textContent='ZIP作成中…'; const zip=new JSZip(); files.forEach(f=>zip.file(f.nm,f.buf));
-      const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
-      const name=`Excelフォーマット_${stamp()}.zip`;
-      if(window.showSaveFilePicker){
-        try{ const h=await window.showSaveFilePicker({suggestedName:name, types:[{description:'ZIP',accept:{'application/zip':['.zip']}}]}); const w=await h.createWritable(); await w.write(blob); await w.close(); }
-        catch(e){ if(e.name==='AbortError'){ btn.disabled=false; btn.textContent=old; return; } dl(blob,name); }
-      } else { dl(blob,name); }
-      toast(files.length+'件を保存しました');
-    }
-  }catch(err){console.error(err); toast('エラー: '+err.message);}
-  btn.disabled=false; btn.textContent=old;
+// ---- 実行 → 結果欄に「ZIP」「フォルダにまとめて保存」「1ファイルずつ」を並べる（Excelデータ加工と同じ形） ----
+let resultUrls=[];
+function clearResults(){
+  resultUrls.forEach(u=>URL.revokeObjectURL(u)); resultUrls=[];
+  el('zip').innerHTML=''; el('dl').innerHTML='';
+  const b=el('verify-log'); b.innerHTML=''; b.style.display='none';
+  el('result-empty').style.display='';
 }
-el('dl-folder').onclick=saveToFolder;
-el('dl-zip').onclick=saveAsZip;
+function blobLink(blob,name,label,cls){ const a=document.createElement('a'); const u=URL.createObjectURL(blob); resultUrls.push(u); a.href=u; a.download=name; a.textContent=label; if(cls) a.className=cls; return a; }
+async function runAll(){
+  const btn=el('run'), old=btn.textContent;
+  btn.disabled=true; btn.textContent='処理中…';
+  try{
+    const files=await buildAll(); if(!files) return;
+    const verifyHtml=el('verify-log').innerHTML;   // buildAll が書いた出力前チェックの結果は残す
+    clearResults(); el('verify-log').innerHTML=verifyHtml; el('verify-log').style.display='block';
+    el('result-empty').style.display='none';
+    if(files.length>1){
+      const zip=new JSZip(); files.forEach(f=>zip.file(f.nm,f.buf));
+      const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+      el('zip').appendChild(blobLink(blob,`Excelフォーマット_${stamp()}.zip`,'⬇ ZIPでまとめてダウンロード（'+files.length+'ファイル）','zipbtn'));
+    }
+    if(window.showDirectoryPicker){
+      const fb=document.createElement('button'); fb.className='folderbtn';
+      fb.textContent='📁 フォルダにまとめて保存（'+files.length+'ファイル）';
+      fb.onclick=async()=>{
+        let dir; try{ dir=await window.showDirectoryPicker({mode:'readwrite'}); }catch(e){ return; }
+        try{
+          for(const f of files){ const fh=await dir.getFileHandle(f.nm,{create:true}); const w=await fh.createWritable(); await w.write(f.buf); await w.close(); }
+          toast(files.length+'件を選んだフォルダに保存しました');
+        }catch(err){ console.error(err); toast('フォルダ保存エラー: '+err.message); }
+      };
+      el('zip').appendChild(fb);
+    }
+    if(files.length>1){ const lab=document.createElement('div'); lab.className='dl-label'; lab.textContent='1ファイルずつダウンロード：'; el('dl').appendChild(lab); }
+    files.forEach(f=>el('dl').appendChild(blobLink(new Blob([f.buf],{type:XLSX_MIME}),f.nm,'⬇ '+f.nm)));
+    toast(files.length+'件できました。下の結果から保存してください');
+  }catch(err){ console.error(err); toast('エラー: '+err.message); }
+  finally{ btn.disabled=false; btn.textContent=old; }
+}
+el('run').onclick=runAll;
 
 let toastT;
 function toast(m){const t=el('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
@@ -553,19 +568,44 @@ loadSheet();
 </html>
 
 <style>
-/* 対戦リスト：ホーム／アウェイに枠外ラベル＋レイアウト調整 */
-.mtop{display:flex;flex-wrap:nowrap;align-items:flex-end;gap:10px}
-.mtop > div.mteam{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:3px}
-.mtop > div.mteam::before{font-size:12px;font-weight:700;color:#475569;line-height:1.4}
-.mtop > div:nth-of-type(2).mteam::before{content:"ホームチーム"}
-.mtop > div:nth-of-type(4).mteam::before{content:"アウェイチーム"}
-.mtop > div.mteam input,.mtop > div.mteam select{width:100%}
-.mtop > div.vs{padding-bottom:9px;font-weight:700;color:#64748b;flex:0 0 auto}
-.mtop > div.mnum{align-self:flex-end;margin-bottom:6px}
-.mtop > div.mbtns{align-self:flex-end;display:flex;gap:8px;padding-bottom:2px}
-.mbot{display:flex;gap:12px;margin-top:10px}
-.mbot .mfield{flex:1 1 0;min-width:0}
-.mbot .mfield input{width:100%}
+/* 対戦リスト：1試合を横一列に（番号｜ホーム｜対｜アウェイ｜開催日｜KO｜テンプレ｜複製・✕） */
+.mrow{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 10px}
+.mrow > .mteam{flex:1 1 150px;min-width:0}
+.mrow > .mteam input,.mrow > .mteam select{width:100%}
+.mrow > .mdate{flex:0 0 140px} .mrow > .mdate input{width:100%}
+.mrow > .mko{flex:0 0 95px} .mrow > .mko input{width:100%}
+.mrow > .mtpl{flex:0 1 170px;min-width:0} .mrow > .mtpl select{width:100%}
+.mrow > .vs{padding-bottom:8px;font-weight:700;color:#64748b;flex:0 0 auto}
+.mrow > .mnum{margin-bottom:5px}
+.mrow > .mbtns{display:flex;gap:6px;padding-bottom:3px}
+.mcard{padding:10px 12px}
+.matchlist{gap:8px}
+/* ファイル名：選択肢1つ＋自由入力のときだけ入力欄 */
+.fnrow{display:flex;flex-wrap:wrap;gap:10px}
+.fnrow select{flex:0 1 auto;width:auto;max-width:100%}
+.fnrow input{flex:1 1 280px}
+/* 「? 使い方」（Excelデータ加工と同じ見た目） */
+details.howtobox{ margin:14px 0 0; }
+details.howtobox summary{ cursor:pointer; list-style:none; display:inline-flex; align-items:center; gap:8px; color:#0f172a; font-size:14px; font-weight:700; background:#fff; border:1px solid #cbd5e1; border-radius:999px; padding:6px 14px 6px 10px; }
+details.howtobox summary::-webkit-details-marker{ display:none; }
+details.howtobox summary:hover{ border-color:#94a3b8; background:#f8fafc; }
+details.howtobox summary .qi{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#0f172a; color:#fff; font-size:12px; font-weight:800; }
+details.howtobox summary .arr{ color:#475569; font-size:11px; transition:transform .15s; }
+details.howtobox[open] summary .arr{ transform:rotate(90deg); }
+details.howtobox[open] summary{ margin-bottom:10px; }
+ul.howto{ margin:0 0 10px; padding:12px 16px 12px 34px; border:1px solid #e2e8f0; border-radius:12px; background:#fff; font-size:14px; line-height:1.7; color:#0f172a; }
+.phtable{ background:#fff; }
+/* 実行と結果（Excelデータ加工と同じ並び） */
+.runbtn{ width:auto; padding:11px 26px; margin-top:0; }
+.dl{ display:flex; flex-wrap:wrap; gap:8px; margin:2px 0 6px; }
+.dl a{ text-decoration:none; background:#f0f8f3; color:#217346; border:1px solid #bcdcc8; padding:9px 13px; border-radius:8px; font-size:14px; font-weight:600; }
+.dl a:hover{ background:#e3f4ea; }
+.dl-label{ width:100%; font-size:13px; color:#475569; margin:0; font-weight:600; }
+.zipbtn{ display:inline-flex; align-items:center; gap:8px; text-decoration:none; background:var(--tool); color:#fff; font-weight:700; font-size:14px; padding:12px 20px; border-radius:8px; margin:4px 10px 14px 0; border:0; cursor:pointer; }
+.zipbtn:hover{ background:#1b5f3a; }
+.folderbtn{ display:inline-flex; align-items:center; gap:8px; background:#fff; color:#217346; border:2px solid #217346; font-weight:700; font-size:14px; padding:10px 18px; border-radius:8px; cursor:pointer; margin:4px 10px 14px 0; font-family:inherit; }
+.folderbtn:hover{ background:#f0f8f3; }
+.empty{ color:#475569; font-size:13px; margin:0; }
 
   /* ===== kofa シリーズ共通 v1（2026-10-01・5サイト共通の見た目の決まり） ===== */
   /* 道具の色(--tool)は「上の帯・アイコン・番号の丸・主ボタン/選択中タブ」だけ。文字は 22/16/14/13、角の丸みは 8/12/丸 */
