@@ -600,6 +600,12 @@ details.howtobox[open] summary .arr{ transform:rotate(90deg); }
 details.howtobox[open] summary{ margin-bottom:10px; }
 ul.howto{ margin:0 0 10px; padding:12px 16px 12px 34px; border:1px solid #e2e8f0; border-radius:12px; background:#fff; font-size:14px; line-height:1.7; color:#0f172a; }
 .phtable{ background:#fff; }
+/* 狭い画面では記号表を2列（記号｜説明）に折り返す */
+@media(max-width:680px){
+  .phtable, .phtable tbody{ display:block; }
+  .phtable tr{ display:grid; grid-template-columns:auto 1fr; gap:4px 8px; padding:4px 0; }
+  .phtable td{ white-space:normal; }
+}
 /* 実行と結果（Excelデータ加工と同じ並び） */
 .runbtn{ width:auto; padding:11px 26px; margin-top:0; }
 .dl{ display:flex; flex-wrap:wrap; gap:8px; margin:2px 0 6px; }
